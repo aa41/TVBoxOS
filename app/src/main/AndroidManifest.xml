@@ -35,8 +35,7 @@
 
         <activity
             android:name=".ui.activity.HomeActivity"
-            android:exported="true"
-            android:screenOrientation="sensorLandscape">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -47,35 +46,26 @@
 
         <activity
             android:name=".ui.activity.LivePlayActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:configChanges="orientation|screenSize" />
         <activity
             android:name=".ui.activity.DetailActivity"
-            android:configChanges="orientation|screenSize"
-            android:screenOrientation="sensorLandscape" />
+            android:configChanges="orientation|screenSize" />
         <activity
-            android:name=".ui.activity.PushActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:name=".ui.activity.PushActivity" />
         <activity
             android:name=".ui.activity.SearchActivity"
-            android:windowSoftInputMode="stateHidden|adjustResize"
-            android:screenOrientation="sensorLandscape" />
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
-            android:name=".ui.activity.FastSearchActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:name=".ui.activity.FastSearchActivity" />
         <activity
-            android:name=".ui.activity.SettingActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:name=".ui.activity.SettingActivity" />
         <activity
-            android:name=".ui.activity.HistoryActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:name=".ui.activity.HistoryActivity" />
         <activity
-            android:name=".ui.activity.CollectActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:name=".ui.activity.CollectActivity" />
         <activity
-            android:name=".ui.activity.LocalFileActivity"
-            android:screenOrientation="sensorLandscape" />
-        <activity android:name=".ui.activity.DownloadActivity" android:exported="false"
-            android:screenOrientation="sensorLandscape" />
+            android:name=".ui.activity.LocalFileActivity" />
+        <activity android:name=".ui.activity.DownloadActivity" android:exported="false" />
         <activity android:name=".ui.activity.DownloadPlayerActivity" android:exported="false" />
 
         <service android:name=".download.DownloadService"

@@ -1,6 +1,7 @@
 package com.github.tvbox.osc.ui.fragment;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -202,7 +203,8 @@ public class GridFragment extends BaseLazyFragment {
         if(isFolederMode()){
             mGridView.setLayoutManager(new V7LinearLayoutManager(this.mContext, 1, false));
         }else{
-            int spanCount = isBaseOnWidth() ? 5 : 6;
+            int spanCount = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT
+                    ? 3 : (isBaseOnWidth() ? 5 : 6);
             if (style != null) {
                 spanCount = ImgUtil.spanCountByStyle(style, spanCount);
             }

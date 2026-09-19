@@ -63,7 +63,8 @@ public class CollectActivity extends BaseActivity {
         tvDelTip = findViewById(R.id.tvDelTip);
         mGridView = findViewById(R.id.mGridView);
         mGridView.setHasFixedSize(true);
-        mGridView.setLayoutManager(new V7GridLayoutManager(this.mContext, isBaseOnWidth() ? 5 : 6));
+        mGridView.setLayoutManager(new V7GridLayoutManager(this.mContext,
+                getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT ? 2 : (isBaseOnWidth() ? 5 : 6)));
         collectAdapter = new CollectAdapter();
         mGridView.setAdapter(collectAdapter);
         tvDelete.setOnClickListener(new View.OnClickListener() {

@@ -20,6 +20,7 @@ import android.view.ViewOutlineProvider;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.content.ClipboardManager;
@@ -155,6 +156,11 @@ public class DetailActivity extends BaseActivity {
     private int selectedSeriesGroupPosition;
     private int GroupCount;
     private int qualityPosition;
+    private LinearLayout detailTop;
+    private LinearLayout detailInfo;
+    private LinearLayout detailActions;
+    private HorizontalScrollView detailActionScroll;
+    private int detailActionIndex;
     boolean showPreview = Hawk.get(HawkConfig.SHOW_PREVIEW, true);; // true 开启 false 关闭
 
     private LinearSmoothScroller smoothScroller;
@@ -204,6 +210,10 @@ public class DetailActivity extends BaseActivity {
         tvDesc = findViewById(R.id.tvDesc);
         tvSeriesSort = findViewById(R.id.mSeriesSortTv);
         tvBatchDownload = findViewById(R.id.tvBatchDownload);
+        detailTop = findViewById(R.id.topLayout);
+        detailActions = (LinearLayout) tvPlay.getParent();
+        detailInfo = (LinearLayout) detailActions.getParent();
+        detailActionIndex = detailInfo.indexOfChild(detailActions);
         tvCollect = findViewById(R.id.tvCollect);
         tvQuickSearch = findViewById(R.id.tvQuickSearch);
         tvChangeSource = findViewById(R.id.tvChangeSource);
@@ -609,6 +619,7 @@ public class DetailActivity extends BaseActivity {
             tvPlay.requestFocus();
         }
         setLoadSir(llLayout);
+        applyResponsiveLayout();
         if (fullWindows) {
             setFullPreview(true);
         }
@@ -717,6 +728,7 @@ public class DetailActivity extends BaseActivity {
         w += 32;
         int screenWidth = getWindowManager().getDefaultDisplay().getWidth()/3;
         int offset = screenWidth/w;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) offset = 3;
         if(offset <=2) offset =2;
         if(offset > 6) offset =6;
         mGridViewLayoutMgr.setSpanCount(offset);
@@ -2119,9 +2131,98 @@ public class DetailActivity extends BaseActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        applyResponsiveLayout();
         if (fullWindows && newConfig.orientation != previewOrientation) {
             previewOrientation = newConfig.orientation;
             previewOrientationChanged = true;
+        }
+    }
+
+    private int responsiveDp(float value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
+    private void applyResponsiveLayout() {
+        if (detailTop == null) return;
+        Configuration config = getResources().getConfiguration();
+        boolean portrait = config.orientation == Configuration.ORIENTATION_PORTRAIT;
+        boolean compactLandscape = !portrait && config.smallestScreenWidthDp < 600;
+        boolean compact = portrait || compactLandscape;
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int mediaWidth = portrait ? width - responsiveDp(32) : compactLandscape ? Math.round(width * .38f)
+                : getResources().getDimensionPixelSize(R.dimen.vs_480);
+        int mediaHeight = portrait ? responsiveDp(184) : compactLandscape ? responsiveDp(190)
+                : getResources().getDimensionPixelSize(R.dimen.vs_320);
+
+        detailTop.setOrientation(portrait ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
+        ViewGroup.MarginLayoutParams topParams = (ViewGroup.MarginLayoutParams) detailTop.getLayoutParams();
+        topParams.topMargin = compact ? responsiveDp(16) : getResources().getDimensionPixelSize(R.dimen.vs_10);
+        detailTop.setLayoutParams(topParams);
+        detailTop.setPadding(compact ? responsiveDp(16) : getResources().getDimensionPixelSize(R.dimen.vs_50),
+                0, compact ? responsiveDp(16) : getResources().getDimensionPixelSize(R.dimen.vs_50), 0);
+        LinearLayout.LayoutParams mediaParams = new LinearLayout.LayoutParams(mediaWidth, mediaHeight);
+        thumbContainer.setLayoutParams(mediaParams);
+        ViewGroup.LayoutParams posterParams = ivThumb.getLayoutParams();
+        posterParams.width = compact ? responsiveDp(130) : getResources().getDimensionPixelSize(R.dimen.vs_230);
+        posterParams.height = compact ? responsiveDp(172) : getResources().getDimensionPixelSize(R.dimen.vs_300);
+        ivThumb.setLayoutParams(posterParams);
+        llPlayerPlace.setLayoutParams(new LinearLayout.LayoutParams(mediaWidth, mediaHeight));
+        LinearLayout.LayoutParams infoParams = new LinearLayout.LayoutParams(
+                portrait ? ViewGroup.LayoutParams.MATCH_PARENT : 0,
+                portrait ? ViewGroup.LayoutParams.WRAP_CONTENT : mediaHeight,
+                portrait ? 0 : 1);
+        infoParams.topMargin = portrait ? responsiveDp(10) : 0;
+        infoParams.leftMargin = portrait ? 0 : responsiveDp(compactLandscape ? 12 : 20);
+        detailInfo.setLayoutParams(infoParams);
+        if (compact && detailActionScroll == null) {
+            detailInfo.removeView(detailActions);
+            detailActionScroll = new HorizontalScrollView(this);
+            detailActionScroll.setHorizontalScrollBarEnabled(false);
+            detailActionScroll.setFillViewport(false);
+            detailActionScroll.addView(detailActions);
+            detailInfo.addView(detailActionScroll, detailActionIndex);
+        } else if (!compact && detailActionScroll != null) {
+            detailActionScroll.removeView(detailActions);
+            detailInfo.removeView(detailActionScroll);
+            detailInfo.addView(detailActions, detailActionIndex);
+            detailActionScroll = null;
+        }
+        for (int i = 0; i < detailActions.getChildCount(); i++) {
+            View action = detailActions.getChildAt(i);
+            if (action instanceof TextView) {
+                action.getLayoutParams().width = compact ? responsiveDp(86) : getResources().getDimensionPixelSize(R.dimen.vs_100);
+                action.getLayoutParams().height = compact ? responsiveDp(44) : getResources().getDimensionPixelSize(R.dimen.vs_40);
+                if (compact) ((TextView) action).setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
+                else ((TextView) action).setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
+                        getResources().getDimension(R.dimen.vs_20));
+            }
+        }
+        if (detailActionScroll != null) {
+            detailActionScroll.getLayoutParams().height = responsiveDp(48);
+        }
+        FrameLayout.LayoutParams preview = new FrameLayout.LayoutParams(
+                compact ? mediaWidth : getResources().getDimensionPixelSize(R.dimen.vs_470),
+                compact ? mediaHeight : getResources().getDimensionPixelSize(R.dimen.vs_300));
+        preview.leftMargin = compact ? responsiveDp(16) : getResources().getDimensionPixelSize(R.dimen.vs_50);
+        preview.topMargin = compact ? responsiveDp(16) : getResources().getDimensionPixelSize(R.dimen.vs_20);
+        windowsPreview = preview;
+        if (!fullWindows) llPlayerFragmentContainer.setLayoutParams(preview);
+        FrameLayout.LayoutParams block = new FrameLayout.LayoutParams(preview.width, preview.height);
+        block.leftMargin = preview.leftMargin;
+        block.topMargin = preview.topMargin;
+        llPlayerFragmentContainerBlock.setLayoutParams(block);
+        if (mGridViewLayoutMgr != null && vodInfo != null) {
+            mGridViewLayoutMgr.setSpanCount(portrait ? 3 : compactLandscape ? 4 : 6);
+            setSeriesGroupOptions();
+        }
+        if (compact) {
+            int margin = responsiveDp(16);
+            for (View list : new View[]{mGridViewFlag, tvSeriesGroup, mGridViewQuality, mGridView}) {
+                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) list.getLayoutParams();
+                params.leftMargin = margin;
+                params.rightMargin = margin;
+                list.setLayoutParams(params);
+            }
         }
     }
 

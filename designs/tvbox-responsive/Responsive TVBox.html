@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>TVBox · 横竖屏响应式设计</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101416; --surface:#1b2224; --raised:#252d2f; --line:#354044; --text:#f3f5f3; --muted:#aab5b4; --accent:#ff7036; --teal:#65c3b4; --danger:#f48f83; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#080b0d; color:var(--text); font-family:-apple-system,"SF Pro Text","PingFang SC","Noto Sans SC",sans-serif; letter-spacing:0; }
+    button,input { font:inherit; }
+    button { cursor:pointer; color:inherit; }
+    .review { min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:22px; }
+    .review-bar { display:flex; align-items:center; justify-content:space-between; width:min(100%,1100px); gap:16px; color:#bac3c2; font-size:13px; }
+    .review-bar strong { font-size:14px; color:#f3f5f3; font-weight:650; }
+    .mode-switch { display:flex; border:1px solid #374044; border-radius:7px; padding:3px; gap:3px; }
+    .mode-switch button { border:0; background:transparent; padding:7px 13px; border-radius:5px; font-size:12px; }
+    .mode-switch button.active { background:#34403f; color:#fff; }
+    .app { background:var(--bg); border:1px solid #384044; overflow:hidden; position:relative; box-shadow:0 20px 70px #0008; transition:width .25s,height .25s; }
+    .app.portrait { width:393px; height:min(852px,calc(100dvh - 92px)); border-radius:20px; }
+    .app.landscape { width:min(1100px,calc(100vw - 44px)); height:min(620px,calc(100dvh - 92px)); border-radius:12px; }
+    .chrome { height:64px; display:flex; align-items:center; gap:12px; padding:0 20px; border-bottom:1px solid var(--line); flex:none; }
+    .portrait .chrome { height:58px; padding:0 18px; }
+    .brand { font-weight:750; font-size:21px; white-space:nowrap; }
+    .brand span { color:var(--accent); }
+    .source { display:flex; align-items:center; gap:4px; border:1px solid var(--line); background:var(--surface); border-radius:5px; padding:7px 9px; color:#d3dcda; font-size:12px; max-width:130px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .grow { flex:1; }
+    .icon { display:inline-flex; align-items:center; justify-content:center; flex:none; width:20px; height:20px; }
+    .icon svg { display:block; }
+    .icon-button { display:inline-flex; align-items:center; justify-content:center; border:0; background:transparent; min-width:42px; height:42px; border-radius:6px; color:#d9e0de; }
+    .icon-button:hover,.icon-button:focus-visible { background:var(--raised); outline:1px solid var(--accent); }
+    .land-nav { display:none; align-items:center; gap:3px; margin-left:18px; }
+    .landscape .land-nav { display:flex; }
+    .land-nav button { border:0; background:transparent; color:var(--muted); font-size:14px; min-height:42px; padding:0 13px; border-radius:5px; }
+    .land-nav button.active { color:#fff; background:var(--raised); }
+    .landscape .source { max-width:150px; }
+    .content { position:absolute; top:64px; bottom:0; left:0; right:0; overflow:auto; scrollbar-width:thin; scrollbar-color:#465052 transparent; }
+    .portrait .content { top:58px; bottom:66px; }
+    .content.player-content { top:0; bottom:0; overflow:hidden; }
+    .bottom-nav { display:none; position:absolute; bottom:0; left:0; right:0; height:66px; background:#171d1f; border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom); }
+    .portrait .bottom-nav { display:flex; }
+    .bottom-nav button { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; border:0; background:transparent; color:#84908e; font-size:10px; }
+    .bottom-nav button.active { color:var(--accent); }
+    .page { padding:20px; }
+    .portrait .page { padding:18px 16px 26px; }
+    .section-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:0 0 12px; }
+    h1,h2,h3,p { margin:0; }
+    h1 { font-size:22px; line-height:1.3; font-weight:700; }
+    h2 { font-size:17px; font-weight:680; }
+    h3 { font-size:15px; font-weight:650; }
+    .muted { color:var(--muted); }
+    .small { font-size:12px; line-height:1.55; }
+    .text-link { border:0; background:transparent; color:var(--muted); font-size:12px; padding:6px; }
+    .home-layout { display:grid; grid-template-columns:340px minmax(0,1fr); gap:26px; }
+    .portrait .home-layout { display:block; }
+    .welcome { margin:0 0 18px; }
+    .welcome .muted { font-size:13px; margin-bottom:3px; }
+    .continue { width:100%; display:flex; gap:13px; padding:11px; text-align:left; border:1px solid var(--line); border-radius:7px; background:var(--surface); }
+    .continue img { width:78px; height:103px; object-fit:cover; border-radius:4px; }
+    .continue-copy { min-width:0; flex:1; display:flex; flex-direction:column; justify-content:center; gap:7px; }
+    .continue-copy strong { font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .track { height:3px; background:#485251; border-radius:2px; overflow:hidden; }
+    .track i { display:block; height:100%; background:var(--accent); }
+    .portrait .continue img { width:73px; height:94px; }
+    .posters { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+    .portrait .posters { display:flex; overflow-x:auto; gap:11px; padding-bottom:4px; scrollbar-width:none; }
+    .portrait .posters::-webkit-scrollbar { display:none; }
+    .poster { padding:0; border:0; background:transparent; text-align:left; min-width:0; }
+    .poster img { display:block; width:100%; aspect-ratio:3/4; object-fit:cover; border-radius:5px; border:1px solid #4a5353; }
+    .portrait .poster { flex:0 0 108px; }
+    .poster strong { display:block; font-size:13px; font-weight:600; margin-top:6px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+    .poster span { display:block; margin-top:2px; font-size:11px; color:var(--muted); }
+    .portrait .home-recommend { margin-top:23px; }
+    .landscape .home-recommend { margin-top:0; }
+    .divider { height:1px; background:var(--line); margin:22px 0; }
+    .queue { display:grid; gap:8px; }
+    .queue-row { display:flex; align-items:center; gap:12px; width:100%; border:0; border-bottom:1px solid var(--line); background:transparent; padding:7px 0 12px; text-align:left; }
+    .queue-row img { width:48px; height:62px; object-fit:cover; border-radius:4px; }
+    .queue-row strong { font-size:13px; display:block; }
+    .queue-row span { font-size:11px; color:var(--muted); display:block; margin-top:4px; }
+    .search-box { height:46px; display:flex; align-items:center; gap:10px; padding:0 13px; background:var(--surface); border:1px solid var(--line); border-radius:6px; color:var(--muted); }
+    .search-box input { flex:1; min-width:0; border:0; outline:0; background:none; color:var(--text); font-size:14px; }
+    .chips { display:flex; gap:7px; overflow:auto; scrollbar-width:none; margin:16px 0 20px; }
+    .chips button,.segment button { border:1px solid var(--line); background:var(--surface); border-radius:5px; color:var(--muted); min-height:34px; padding:0 13px; font-size:12px; white-space:nowrap; }
+    .chips button.active,.segment button.active { color:#fff; border-color:#a55436; background:#503024; }
+    .discover-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:16px; }
+    .portrait .discover-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+    .detail { display:grid; grid-template-columns:240px minmax(0,1fr); gap:24px; }
+    .portrait .detail { display:block; }
+    .detail-poster { width:100%; aspect-ratio:3/4; object-fit:cover; border-radius:6px; }
+    .portrait .detail-poster { width:112px; height:152px; float:left; margin:0 16px 14px 0; }
+    .detail-summary { min-height:170px; }
+    .detail-summary h1 { margin:3px 0 8px; }
+    .detail-summary p { font-size:13px; color:var(--muted); line-height:1.65; }
+    .detail-actions { display:flex; gap:9px; clear:both; padding-top:14px; }
+    .primary,.secondary { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:42px; border-radius:5px; padding:0 16px; font-size:13px; font-weight:650; }
+    .primary { background:var(--accent); border:1px solid var(--accent); color:#15191a; }
+    .secondary { background:var(--raised); border:1px solid var(--line); color:var(--text); }
+    .portrait .detail-actions button { flex:1; }
+    .episodes { margin-top:20px; }
+    .episode-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; }
+    .portrait .episode-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+    .episode-grid button { min-height:42px; border:1px solid var(--line); background:var(--surface); border-radius:5px; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .episode-grid button.active { color:var(--accent); border-color:var(--accent); }
+    .segment { display:flex; gap:6px; overflow:auto; scrollbar-width:none; }
+    .download-head { display:flex; gap:10px; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .download-head .actions { display:flex; gap:4px; }
+    .downloads-layout { display:grid; grid-template-columns:1fr; gap:0; }
+    .download-row { display:flex; gap:12px; align-items:center; border-bottom:1px solid var(--line); padding:13px 0; }
+    .download-row .row-body { min-width:0; flex:1; }
+    .download-row strong { display:block; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .download-row .row-sub { display:flex; gap:8px; align-items:center; color:var(--muted); font-size:11px; margin-top:5px; }
+    .download-row .track { margin-top:9px; }
+    .status { font-size:11px; color:var(--teal); white-space:nowrap; }
+    .status.failed { color:var(--danger); }
+    .status.running { color:var(--accent); }
+    .row-actions { display:flex; gap:2px; }
+    .check { width:24px; height:24px; border:1.5px solid #a4afad; border-radius:4px; background:none; flex:none; margin-right:4px; }
+    .check.checked { background:var(--accent); border-color:var(--accent); color:#101416; display:grid; place-items:center; }
+    .empty { padding:45px 14px; text-align:center; color:var(--muted); font-size:13px; }
+    .setting-group { border-top:1px solid var(--line); margin:16px 0 0; }
+    .setting-row { display:flex; align-items:center; gap:12px; min-height:58px; width:100%; border:0; border-bottom:1px solid var(--line); background:none; text-align:left; }
+    .setting-row .label { flex:1; font-size:14px; }
+    .setting-row .hint { color:var(--muted); font-size:12px; }
+    .landscape .settings-layout { display:grid; grid-template-columns:1fr 1fr; gap:30px; }
+    .setting-note { font-size:12px; color:var(--muted); margin-top:18px; line-height:1.6; }
+    .player-stage { height:100%; background:#050708; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+    .player-frame { width:100%; height:100%; object-fit:contain; opacity:.65; }
+    .portrait .player-frame { width:100%; height:auto; aspect-ratio:16/9; }
+    .player-top { position:absolute; top:0; left:0; right:0; display:flex; gap:10px; align-items:center; padding:16px; background:linear-gradient(#050708dd,transparent); }
+    .player-top strong { font-size:15px; }
+    .player-center { position:absolute; display:flex; align-items:center; gap:32px; }
+    .player-center button { display:grid; place-items:center; border:0; border-radius:50%; width:54px; height:54px; background:#ffffffde; color:#141819; }
+    .player-center button.side { background:#1b2224ce; color:#fff; width:42px; height:42px; }
+    .player-bottom { position:absolute; bottom:0; left:0; right:0; padding:36px 18px 18px; background:linear-gradient(transparent,#050708ef); }
+    .player-bottom input { width:100%; accent-color:var(--accent); }
+    .player-tools { display:flex; align-items:center; justify-content:space-between; font-size:12px; color:#d2dad7; }
+    .player-tools button { border:0; background:transparent; min-height:40px; color:#fff; display:flex; align-items:center; gap:5px; }
+    .portrait .player-stage { align-items:flex-start; padding-top:24%; }
+    .portrait .player-center { top:34%; }
+    .portrait .player-bottom { bottom:12%; }
+    .portrait .player-top { top:env(safe-area-inset-top); }
+    .sheet-cover { position:absolute; inset:0; background:#000a; z-index:10; display:flex; align-items:flex-end; justify-content:center; }
+    .sheet { width:100%; max-width:560px; max-height:78%; overflow:auto; padding:20px; background:#222a2b; border:1px solid #4a5252; border-radius:8px 8px 0 0; }
+    .landscape .sheet-cover { align-items:center; }
+    .landscape .sheet { border-radius:7px; }
+    .sheet-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:15px; }
+    .sheet input[type=text] { width:100%; height:44px; background:#151a1b; color:#fff; border:1px solid var(--line); border-radius:5px; padding:0 11px; outline:none; }
+    .sheet .episode-grid button.selected { background:#573320; border-color:var(--accent); color:#fff; }
+    .sheet-footer { display:flex; gap:8px; justify-content:flex-end; margin-top:18px; }
+    button:focus-visible,input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+    @media (max-width:700px) { .review { display:block; padding:0; } .review-bar { display:none; } .app.portrait,.app.landscape { width:100vw; height:100dvh; border:0; border-radius:0; box-shadow:none; } }
+  </style>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="assets/lucide.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const {useState,useEffect,useRef} = React;
+    const films = [
+      {id:1,title:"早春晴朗",meta:"2026 · 剧情 · 7.8",image:"assets/poster-1.png",note:"更新至 12 集",description:"一段关于相遇与重新出发的故事。"},
+      {id:2,title:"深渊无间",meta:"2025 · 悬疑 · 7.2",image:"assets/poster-2.png",note:"全 24 集",description:"真相隐藏在每一次看似偶然的选择里。"},
+      {id:3,title:"抓特务",meta:"2026 · 年代 · 7.4",image:"assets/poster-3.png",note:"更新至 18 集",description:"一场发生在旧城街巷的追踪。"},
+      {id:4,title:"特立独行",meta:"2026 · 喜剧 · 6.7",image:"assets/poster-4.png",note:"全 30 集",description:"平凡生活里的不平凡旅程。"},
+      {id:5,title:"兰香如故",meta:"2025 · 古装 · 8.1",image:"assets/poster-5.png",note:"更新至 20 集",description:"旧梦重逢，故事由此展开。"}
+    ];
+    const initialTasks = [{id:1,title:"早春晴朗 · 第 12 集",state:"done",progress:100,size:"428 MB"},{id:2,title:"深渊无间 · 第 08 集",state:"running",progress:64,size:"281 / 439 MB"},{id:3,title:"兰香如故 · 第 03 集",state:"paused",progress:28,size:"116 / 414 MB"}];
+    const labels = {home:"首页",discover:"发现",downloads:"下载",profile:"设置"};
+    function Icon({name,size=20}) {
+      const ref=useRef(null);
+      useEffect(() => {
+        if (!ref.current || !window.lucide) return;
+        const key=name.split("-").map(part=>part[0].toUpperCase()+part.slice(1)).join("");
+        const icon=window.lucide.icons[key];
+        if (icon) ref.current.replaceChildren(window.lucide.createElement(icon,{width:size,height:size,"stroke-width":1.8}));
+      },[name,size]);
+      return <span className="icon" ref={ref} aria-hidden="true"></span>;
+    }
+    function App() {
+      const [viewport,setViewport]=useState(window.innerWidth>window.innerHeight?"landscape":"portrait");
+      const [override,setOverride]=useState(null);
+      const mode=window.innerWidth<=700?viewport:(override||viewport);
+      const [screen,setScreen]=useState("home");
+      const [film,setFilm]=useState(films[0]);
+      const [genre,setGenre]=useState("全部");
+      const [query,setQuery]=useState("");
+      const [episode,setEpisode]=useState(12);
+      const [route,setRoute]=useState("线路一");
+      const [downloadFilter,setDownloadFilter]=useState("全部");
+      const [selecting,setSelecting]=useState(false);
+      const [selectedTasks,setSelectedTasks]=useState([]);
+      const [tasks,setTasks]=useState(initialTasks);
+      const [sheet,setSheet]=useState(null);
+      const [selectedEpisodes,setSelectedEpisodes]=useState([episode]);
+      const [link,setLink]=useState("");
+      const [playing,setPlaying]=useState(false);
+      const [position,setPosition]=useState(Number(localStorage.getItem("tvbox-preview-position")||37));
+      const [speed,setSpeed]=useState(1);
+      useEffect(() => { const onResize=()=>setViewport(window.innerWidth>window.innerHeight?"landscape":"portrait"); window.addEventListener("resize",onResize); return()=>window.removeEventListener("resize",onResize); },[]);
+      useEffect(() => { localStorage.setItem("tvbox-preview-position",String(position)); },[position]);
+      useEffect(() => { if (!playing) return; const timer=setInterval(()=>setPosition(p=>Math.min(100,p+.2)),1000); return()=>clearInterval(timer); },[playing]);
+      const navigate=name=>{ setScreen(name); setSheet(null); };
+      const openFilm=item=>{ setFilm(item); setEpisode(1); navigate("detail"); };
+      const play=()=>{ setPlaying(true); navigate("player"); };
+      const addBatch=()=>{ setTasks(current=>[{id:Date.now(),title:film.title+" · 第 "+String(selectedEpisodes[0]||episode).padStart(2,"0")+" 集"+(selectedEpisodes.length>1?" 等 "+selectedEpisodes.length+" 集":""),state:"running",progress:0,size:"解析中"},...current]); setSheet(null); navigate("downloads"); };
+      const filtered=tasks.filter(task=>downloadFilter==="全部" || (downloadFilter==="进行中"?task.state==="running":task.state==="done"));
+      const flipTask=id=>setSelectedTasks(ids=>ids.includes(id)?ids.filter(x=>x!==id):[...ids,id]);
+      const taskStatus=task=>task.state==="done"?"已完成":task.state==="running"?"下载中":"已暂停";
+      const poster=(item)=> <button className="poster" key={item.id} onClick={()=>openFilm(item)}><img src={item.image} alt={item.title}/><strong>{item.title}</strong><span>{item.note}</span></button>;
+      const chrome=screen!=="player" && <header className="chrome">
+        <div className="brand">TV<span>Box</span></div>
+        <button className="source" onClick={()=>setSheet("source")}>默认线路 <Icon name="chevron-down" size={13}/></button>
+        <nav className="land-nav" aria-label="主导航">{["home","discover","downloads","profile"].map(key=><button key={key} className={screen===key?"active":""} onClick={()=>navigate(key)}>{labels[key]}</button>)}</nav>
+        <div className="grow"></div>
+        <button className="icon-button" title="搜索" aria-label="搜索" onClick={()=>navigate("discover")}><Icon name="search"/></button>
+        {mode==="landscape" && <button className="icon-button" title="设置" aria-label="设置" onClick={()=>navigate("profile")}><Icon name="settings-2"/></button>}
+      </header>;
+      return <div className="review">
+        <div className="review-bar"><strong>TVBox · 自适应界面</strong><div className="mode-switch" aria-label="预览方向"><button className={mode==="portrait"?"active":""} onClick={()=>setOverride("portrait")}>竖屏</button><button className={mode==="landscape"?"active":""} onClick={()=>setOverride("landscape")}>横屏</button></div></div>
+        <div className={"app "+mode} data-screen-label={screen}>
+          {chrome}
+          <main className={"content "+(screen==="player"?"player-content":"")} key={screen}>
+            {screen==="home" && <div className="page home-layout">
+              <div><div className="welcome"><p className="muted">继续观看</p><h1>接着上次的进度</h1></div><button className="continue" onClick={()=>{setFilm(films[0]);play();}}><img src={films[0].image} alt=""/><div className="continue-copy"><strong>早春晴朗 · 第 12 集</strong><span className="muted small">剩余 18 分钟</span><div className="track"><i style={{width:"62%"}}></i></div><span className="small" style={{color:"var(--accent)"}}>继续播放</span></div><Icon name="chevron-right" size={18}/></button>
+              {mode==="landscape" && <><div className="divider"></div><div className="section-head"><h2>最近更新</h2></div><div className="queue">{films.slice(2,5).map(item=><button className="queue-row" key={item.id} onClick={()=>openFilm(item)}><img src={item.image} alt=""/><div><strong>{item.title}</strong><span>{item.note}</span></div></button>)}</div></>}
+              </div>
+              <div className="home-recommend"><div className="section-head"><h2>为你推荐</h2><button className="text-link" onClick={()=>navigate("discover")}>查看全部 ›</button></div><div className="posters">{films.slice(1,5).map(poster)}</div>{mode==="portrait" && <><div className="divider"></div><div className="section-head"><h2>最近更新</h2></div><div className="queue">{films.slice(2,5).map(item=><button className="queue-row" key={item.id} onClick={()=>openFilm(item)}><img src={item.image} alt=""/><div><strong>{item.title}</strong><span>{item.note}</span></div><div className="grow"></div><Icon name="chevron-right" size={17}/></button>)}</div></>}</div>
+            </div>}
+            {screen==="discover" && <div className="page"><div className="section-head"><h1>发现</h1></div><label className="search-box"><Icon name="search" size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜索影片、演员" aria-label="搜索影片"/>{query && <button className="icon-button" aria-label="清除搜索" onClick={()=>setQuery("")}><Icon name="x" size={17}/></button>}</label><div className="chips">{["全部","剧集","电影","综艺","动漫"].map(item=><button key={item} className={genre===item?"active":""} onClick={()=>setGenre(item)}>{item}</button>)}</div><div className="section-head"><h2>{query?"搜索结果":genre==="全部"?"热门内容":genre}</h2><span className="muted small">{films.filter(item=>item.title.includes(query)).length} 部</span></div><div className="discover-grid">{films.filter(item=>item.title.includes(query)).map(poster)}</div></div>}
+            {screen==="detail" && <div className="page"><button className="text-link" onClick={()=>navigate("discover")}>‹ 返回</button><div className="detail"><img className="detail-poster" src={film.image} alt={film.title}/><div><div className="detail-summary"><h1>{film.title}</h1><p>{film.meta}</p><p>{film.note} · 默认线路</p><p style={{marginTop:11}}>{film.description}</p></div><div className="detail-actions"><button className="primary" onClick={play}><Icon name="play" size={17}/>播放第 {episode} 集</button><button className="secondary" onClick={()=>{setSelectedEpisodes([episode]);setSheet("batch");}}><Icon name="download" size={17}/>批量下载</button></div><section className="episodes"><div className="section-head"><h2>选集</h2><button className="text-link" onClick={()=>setRoute(route==="线路一"?"线路二":"线路一")}>{route} <span>⌄</span></button></div><div className="episode-grid">{Array.from({length:24},(_,i)=><button key={i} className={episode===i+1?"active":""} onClick={()=>setEpisode(i+1)}>{String(i+1).padStart(2,"0")}</button>)}</div></section></div></div></div>}
+            {screen==="downloads" && <div className="page"><div className="download-head"><h1>下载</h1><div className="actions"><button className="icon-button" title="添加链接" aria-label="添加链接" onClick={()=>{setLink("");setSheet("link");}}><Icon name="plus"/></button><button className="icon-button" title={selecting?"完成管理":"管理下载"} aria-label={selecting?"完成管理":"管理下载"} onClick={()=>{setSelecting(!selecting);setSelectedTasks([]);}}><Icon name={selecting?"check":"list-checks"}/></button></div></div><div className="segment">{["全部","进行中","已完成"].map(item=><button key={item} className={downloadFilter===item?"active":""} onClick={()=>setDownloadFilter(item)}>{item}</button>)}</div>{selecting && <div className="section-head" style={{marginTop:16}}><span className="small muted">已选 {selectedTasks.length} 项</span><button className="text-link" style={{color:"var(--danger)"}} onClick={()=>{setTasks(tasks.filter(task=>!selectedTasks.includes(task.id)));setSelectedTasks([]);setSelecting(false);}}>删除所选</button></div>}<div className="downloads-layout">{filtered.length?filtered.map(task=><div className="download-row" key={task.id}>{selecting && <button className={"check "+(selectedTasks.includes(task.id)?"checked":"")} aria-label={"选择 "+task.title} onClick={()=>flipTask(task.id)}>{selectedTasks.includes(task.id)&&<Icon name="check" size={16}/>}</button>}<div className="row-body" onClick={()=>selecting&&flipTask(task.id)}><strong>{task.title}</strong><div className="row-sub"><span className={"status "+task.state}>{taskStatus(task)}</span><span>{task.size}</span></div>{task.state!=="done" && <div className="track"><i style={{width:task.progress+"%"}}></i></div>}</div>{!selecting && <div className="row-actions"><button className="icon-button" title={task.state==="done"?"播放":"暂停或继续"} aria-label={task.state==="done"?"播放":"暂停或继续"} onClick={()=>task.state==="done"?play():setTasks(tasks.map(item=>item.id===task.id?{...item,state:item.state==="running"?"paused":"running"}:item))}><Icon name={task.state==="done"?"play":task.state==="running"?"pause":"rotate-cw"} size={18}/></button></div>}</div>):<div className="empty">当前没有下载任务</div>}</div></div>}
+            {screen==="profile" && <div className="page"><h1>设置</h1><div className="settings-layout"><div className="setting-group"><button className="setting-row" onClick={()=>setSheet("source")}><Icon name="list-video"/><span className="label">内容源</span><span className="hint">默认线路</span><Icon name="chevron-right" size={16}/></button><button className="setting-row" onClick={()=>navigate("downloads")}><Icon name="download"/><span className="label">下载列表</span><span className="hint">{tasks.length} 项</span><Icon name="chevron-right" size={16}/></button><button className="setting-row" onClick={()=>setSheet("cache")}><Icon name="hard-drive"/><span className="label">缓存与存储</span><Icon name="chevron-right" size={16}/></button></div><div className="setting-group"><button className="setting-row" onClick={()=>setSheet("wifi")}><Icon name="wifi"/><span className="label">仅 Wi-Fi 下载</span><span className="hint">关闭</span><Icon name="chevron-right" size={16}/></button><button className="setting-row" onClick={()=>setSheet("speed")}><Icon name="sliders-horizontal"/><span className="label">下载并发数</span><span className="hint">4 线程</span><Icon name="chevron-right" size={16}/></button><button className="setting-row" onClick={()=>setSheet("about")}><Icon name="info"/><span className="label">关于 TVBox</span><Icon name="chevron-right" size={16}/></button></div></div></div>}
+            {screen==="player" && <div className="player-stage"><img className="player-frame" src={film.image} alt=""/><div className="player-top"><button className="icon-button" aria-label="返回" onClick={()=>{setPlaying(false);navigate("detail");}}><Icon name="arrow-left"/></button><strong>{film.title} · 第 {episode} 集</strong></div><div className="player-center"><button className="side" title="后退 10 秒" onClick={()=>setPosition(Math.max(0,position-3))}><Icon name="rotate-ccw"/></button><button title={playing?"暂停":"播放"} onClick={()=>setPlaying(!playing)}><Icon name={playing?"pause":"play"} size={27}/></button><button className="side" title="前进 10 秒" onClick={()=>setPosition(Math.min(100,position+3))}><Icon name="rotate-cw"/></button></div><div className="player-bottom"><input type="range" min="0" max="100" value={position} onChange={e=>setPosition(Number(e.target.value))} aria-label="播放进度"/><div className="player-tools"><span>{Math.floor(position*.43)}:18 / 43:00</span><button onClick={()=>setSpeed(speed===2?1:speed+.25)}>{speed}×</button><button title="字幕" onClick={()=>setSheet("subtitle")}><Icon name="captions" size={18}/></button><button title="全屏方向" onClick={()=>setOverride(mode==="portrait"?"landscape":"portrait")}><Icon name="maximize" size={18}/></button></div></div></div>}
+          </main>
+          {screen!=="player" && <nav className="bottom-nav" aria-label="主导航">{[["home","house"],["discover","compass"],["downloads","download"],["profile","settings-2"]].map(([key,icon])=><button key={key} className={screen===key?"active":""} onClick={()=>navigate(key)}><Icon name={icon} size={20}/><span>{labels[key]}</span></button>)}</nav>}
+          {sheet && <div className="sheet-cover" onClick={()=>setSheet(null)}><div className="sheet" onClick={e=>e.stopPropagation()}><div className="sheet-head"><h2>{sheet==="batch"?"批量下载":sheet==="link"?"添加视频链接":sheet==="source"?"内容源":sheet==="cache"?"缓存与存储":sheet==="speed"?"下载并发数":sheet==="wifi"?"下载网络":"字幕"}</h2><button className="icon-button" title="关闭" onClick={()=>setSheet(null)}><Icon name="x"/></button></div>{sheet==="batch"?<><p className="small muted" style={{marginBottom:12}}>{film.title} · {route} · 已选 {selectedEpisodes.length} 集</p><div className="episode-grid">{Array.from({length:24},(_,i)=><button key={i} className={selectedEpisodes.includes(i+1)?"selected":""} onClick={()=>setSelectedEpisodes(current=>current.includes(i+1)?current.filter(x=>x!==i+1):[...current,i+1].sort((a,b)=>a-b))}>{String(i+1).padStart(2,"0")}</button>)}</div><div className="sheet-footer"><button className="secondary" onClick={()=>setSelectedEpisodes(Array.from({length:24},(_,i)=>i+1))}>全选</button><button className="primary" disabled={!selectedEpisodes.length} onClick={addBatch}>加入下载 ({selectedEpisodes.length})</button></div></>:sheet==="link"?<><input type="text" value={link} onChange={e=>setLink(e.target.value)} placeholder="https://…/video.mp4 或 .m3u8" aria-label="视频链接"/><div className="sheet-footer"><button className="secondary" onClick={()=>setSheet(null)}>取消</button><button className="primary" disabled={!/^https?:\/\//.test(link)} onClick={()=>{setTasks([{id:Date.now(),title:"在线视频",state:"running",progress:0,size:"解析中"},...tasks]);setSheet(null);}}>下载</button></div></>:<><p className="small muted">{sheet==="source"?"默认线路 · 当前设备配置":sheet==="cache"?"下载文件与任务使用同一份本地存储。":sheet==="speed"?"当前 4 线程":sheet==="wifi"?"当前允许移动网络下载":"使用视频内嵌字幕轨道"}</p><div className="sheet-footer"><button className="primary" onClick={()=>setSheet(null)}>完成</button></div></>}</div></div>}
+        </div>
+      </div>;
+    }
+    ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+  </script>
+</body>
+</html>

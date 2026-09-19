@@ -3,6 +3,7 @@ package com.github.tvbox.osc.ui.activity;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,6 +53,23 @@ public class DownloadActivity extends BaseActivity {
             handler.postDelayed(this, 1000);
         }
     };
+
+    @Override protected void onCreate(Bundle state) {
+        if (state != null) {
+            filter = state.getInt("download_filter", 0);
+            selectionMode = state.getBoolean("download_selection_mode", false);
+            ArrayList<String> ids = state.getStringArrayList("download_selected_ids");
+            if (ids != null) selected.addAll(ids);
+        }
+        super.onCreate(state);
+    }
+
+    @Override protected void onSaveInstanceState(Bundle state) {
+        state.putInt("download_filter", filter);
+        state.putBoolean("download_selection_mode", selectionMode);
+        state.putStringArrayList("download_selected_ids", new ArrayList<>(selected));
+        super.onSaveInstanceState(state);
+    }
 
     @Override protected int getLayoutResID() { return R.layout.activity_download; }
 
@@ -188,7 +206,8 @@ public class DownloadActivity extends BaseActivity {
             Toast.makeText(this, "下载文件不存在", Toast.LENGTH_SHORT).show();
             return;
         }
-        startActivity(new Intent(this, DownloadPlayerActivity.class).putExtra("path", task.path));
+        startActivity(new Intent(this, DownloadPlayerActivity.class)
+                .putExtra("path", task.path).putExtra("title", task.title));
     }
 
     private void delete(DownloadStore.Task task) {

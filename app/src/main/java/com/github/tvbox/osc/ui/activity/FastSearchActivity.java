@@ -164,7 +164,8 @@ public class FastSearchActivity extends BaseActivity {
         });
 
         mGridView.setHasFixedSize(true);
-        mGridView.setLayoutManager(new V7GridLayoutManager(this.mContext, 4));
+        mGridView.setLayoutManager(new V7GridLayoutManager(this.mContext,
+                getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT ? 3 : 4));
 
         searchAdapter = new FastSearchAdapter();
         mGridView.setAdapter(searchAdapter);
@@ -196,7 +197,8 @@ public class FastSearchActivity extends BaseActivity {
         });
 
 
-        mGridViewFilter.setLayoutManager(new V7GridLayoutManager(this.mContext, 4));
+        mGridViewFilter.setLayoutManager(new V7GridLayoutManager(this.mContext,
+                getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT ? 3 : 4));
         searchAdapterFilter = new FastSearchAdapter();
         mGridViewFilter.setAdapter(searchAdapterFilter);
         mGridViewFilter.setOnItemListener(new TvRecyclerView.OnItemListener() {

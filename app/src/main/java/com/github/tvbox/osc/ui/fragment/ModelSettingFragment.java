@@ -2,6 +2,7 @@ package com.github.tvbox.osc.ui.fragment;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.os.Handler;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,7 +28,6 @@ import com.github.tvbox.osc.bean.IJKCode;
 import com.github.tvbox.osc.bean.SourceBean;
 import com.github.tvbox.osc.event.RefreshEvent;
 import com.github.tvbox.osc.ui.activity.LocalFileActivity;
-import com.github.tvbox.osc.ui.activity.DownloadActivity;
 import com.github.tvbox.osc.download.DownloadService;
 import com.github.tvbox.osc.download.DownloadStore;
 import com.github.tvbox.osc.ui.activity.SettingActivity;
@@ -122,6 +123,9 @@ public class ModelSettingFragment extends BaseLazyFragment {
 
     @Override
     protected void init() {
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            adaptSettingsRows(getView());
+        }
         tvFastSearchText = findViewById(R.id.showFastSearchText);
         tvFastSearchText.setText(Hawk.get(HawkConfig.FAST_SEARCH_MODE, true) ? "开启" : "关闭");
         tvm3u8AdText = findViewById(R.id.m3u8AdText);
@@ -832,7 +836,6 @@ public class ModelSettingFragment extends BaseLazyFragment {
             Hawk.put(HawkConfig.DOWNLOAD_WIFI_ONLY, enabled);
             wifi.setText(enabled ? "开启" : "关闭");
         });
-        findViewById(R.id.llDownloads).setOnClickListener(v -> startActivity(new Intent(requireContext(), DownloadActivity.class)));
         tvDownloadCache = findViewById(R.id.tvDownloadCache);
         refreshDownloadCache();
         findViewById(R.id.llDownloadCache).setOnClickListener(v -> {
@@ -855,6 +858,48 @@ public class ModelSettingFragment extends BaseLazyFragment {
                         });
                     }, "download-cache-cleanup").start()).show();
         });
+    }
+
+    private boolean containsSettingAction(View view) {
+        if (view.isFocusable()) return true;
+        if (!(view instanceof ViewGroup)) return false;
+        ViewGroup group = (ViewGroup) view;
+        for (int i = 0; i < group.getChildCount(); i++) {
+            if (containsSettingAction(group.getChildAt(i))) return true;
+        }
+        return false;
+    }
+
+    private void adaptSettingsRows(View view) {
+        if (!(view instanceof ViewGroup)) return;
+        ViewGroup group = (ViewGroup) view;
+        if (group instanceof LinearLayout) {
+            LinearLayout row = (LinearLayout) group;
+            int actionChildren = 0;
+            for (int i = 0; i < row.getChildCount(); i++) {
+                if (containsSettingAction(row.getChildAt(i))) actionChildren++;
+            }
+            if (row.getOrientation() == LinearLayout.HORIZONTAL && actionChildren > 1) {
+                row.setOrientation(LinearLayout.VERTICAL);
+                ViewGroup.LayoutParams rowParams = row.getLayoutParams();
+                rowParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                row.setLayoutParams(rowParams);
+                for (int i = 0; i < row.getChildCount(); i++) {
+                    View child = row.getChildAt(i);
+                    if (!containsSettingAction(child)) continue;
+                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) child.getLayoutParams();
+                    params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+                    params.height = child.isFocusable() ? Math.round(48 * getResources().getDisplayMetrics().density)
+                            : ViewGroup.LayoutParams.WRAP_CONTENT;
+                    params.weight = 0;
+                    params.leftMargin = 0;
+                    params.rightMargin = 0;
+                    params.bottomMargin = Math.round(6 * getResources().getDisplayMetrics().density);
+                    child.setLayoutParams(params);
+                }
+            }
+        }
+        for (int i = 0; i < group.getChildCount(); i++) adaptSettingsRows(group.getChildAt(i));
     }
 
     private void refreshDownloadCache() {

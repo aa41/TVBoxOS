@@ -8,6 +8,7 @@ import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.TypedValue;
@@ -95,6 +96,7 @@ public class HomeActivity extends BaseActivity {
     private boolean isDownOrUp = false;
     private boolean sortChange = false;
     private int currentSelected = 0;
+    private int pendingSelected = -1;
     private int sortFocused = 0;
     public View sortFocusView = null;
     private String loadingSourceKey;
@@ -110,7 +112,7 @@ public class HomeActivity extends BaseActivity {
         @Override
         public void run() {
             Date date = new Date();
-            SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy/MM/dd  E  HH:mm", Locale.CHINA);
+            SimpleDateFormat timeFormat = new SimpleDateFormat(isPortrait() ? "MM/dd HH:mm" : "yyyy/MM/dd  E  HH:mm", Locale.CHINA);
             tvDate.setText(timeFormat.format(date));
             mHandler.postDelayed(this, 1000);
         }
@@ -124,7 +126,7 @@ public class HomeActivity extends BaseActivity {
     private final Runnable refreshTopLayoutRunnable = new Runnable() {
         @Override
         public void run() {
-            if (topLayout == null || isActivityUnavailable() || currentSelected != 0 || topHide != 0) {
+            if (isCompactPhone() || topLayout == null || isActivityUnavailable() || currentSelected != 0 || topHide != 0) {
                 return;
             }
             // OnePlus devices may finish applying immersive mode after the first measure.
@@ -148,6 +150,28 @@ public class HomeActivity extends BaseActivity {
     @Override
     protected boolean shouldRefreshAutoSize() {
         return true;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            pendingSelected = savedInstanceState.getInt("selected_category", 0);
+        }
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putInt("selected_category", currentSelected);
+        super.onSaveInstanceState(outState);
+    }
+
+    private boolean isPortrait() {
+        return getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+    }
+
+    private boolean isCompactPhone() {
+        return getResources().getConfiguration().smallestScreenWidthDp < 600;
     }
 
     boolean useCacheConfig = false;
@@ -175,6 +199,17 @@ public class HomeActivity extends BaseActivity {
         this.contentLayout = findViewById(R.id.contentLayout);
         this.mGridView = findViewById(R.id.mGridView);
         this.mViewPager = findViewById(R.id.mViewPager);
+        View navHome = findViewById(R.id.navHome);
+        if (navHome != null) {
+            navHome.setOnClickListener(v -> selectCategory(0));
+            findViewById(R.id.navDiscover).setOnClickListener(v -> {
+                if (fragments.size() > 1) selectCategory(1);
+                else jumpActivity(SearchActivity.class);
+            });
+            findViewById(R.id.navDownloads).setOnClickListener(v -> jumpActivity(DownloadActivity.class));
+            findViewById(R.id.navSettings).setOnClickListener(v -> jumpActivity(SettingActivity.class));
+            updatePhoneNavigation();
+        }
         this.sortAdapter = new SortAdapter();
         this.mGridView.setLayoutManager(new V7LinearLayoutManager(this.mContext, 0, false));
         this.mGridView.setSpacingWithMargins(0, AutoSizeUtils.dp2px(this.mContext, 10.0f));
@@ -342,7 +377,16 @@ public class HomeActivity extends BaseActivity {
                     newSortData = DefaultConfig.adjustSort(ApiConfig.get().getHomeSourceBean().getKey(), new ArrayList<>(), true);
                 }
                 updateSortData(newSortData);
+                if (pendingSelected >= 0) {
+                    currentSelected = Math.min(pendingSelected, Math.max(0, sortAdapter.getData().size() - 1));
+                    sortFocused = currentSelected;
+                    pendingSelected = -1;
+                }
                 initViewPager(absXml);
+                if (isPortrait()) {
+                    mGridView.setSelection(currentSelected);
+                    updatePhoneNavigation();
+                }
                 updateHomeRec(absXml);
                 if (home != null && home.getName() != null && !home.getName().isEmpty()) tvName.setText(home.getName());
                 tvName.clearAnimation();
@@ -579,6 +623,23 @@ public class HomeActivity extends BaseActivity {
         }
     }
 
+    private void selectCategory(int position) {
+        if (position >= fragments.size()) return;
+        currentSelected = position;
+        sortFocused = position;
+        mGridView.setSelection(position);
+        mViewPager.setCurrentItem(position, false);
+        updatePhoneNavigation();
+    }
+
+    private void updatePhoneNavigation() {
+        TextView home = findViewById(R.id.navHome);
+        TextView discover = findViewById(R.id.navDiscover);
+        if (home == null) return;
+        home.setTextColor(getResources().getColor(currentSelected == 0 ? android.R.color.white : R.color.color_CCFFFFFF));
+        discover.setTextColor(getResources().getColor(currentSelected != 0 ? android.R.color.white : R.color.color_CCFFFFFF));
+    }
+
     private void updateSortData(List<MovieSort.SortData> newSortData) {
         if (newSortData == null) {
             newSortData = new ArrayList<>();
@@ -696,7 +757,7 @@ public class HomeActivity extends BaseActivity {
             return;
         }
         tvName.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.ts_30));
-        tvDate.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.ts_26));
+        tvDate.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(isPortrait() ? R.dimen.ts_16 : R.dimen.ts_26));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -734,6 +795,7 @@ public class HomeActivity extends BaseActivity {
                     currentSelected = sortFocused;
                     mViewPager.setCurrentItem(sortFocused, false);
                     changeTop(sortFocused != 0);
+                    updatePhoneNavigation();
                     if (baseLazyFragment instanceof GridFragment && ((GridFragment) baseLazyFragment).shouldReloadOnSelect()) {
                         ((GridFragment) baseLazyFragment).forceRefresh();
                     }
@@ -769,6 +831,11 @@ public class HomeActivity extends BaseActivity {
     byte topHide = 0;
 
     private void changeTop(boolean hide) {
+        if (isCompactPhone()) {
+            topHide = 0;
+            topLayout.setAlpha(1.0f);
+            return;
+        }
         ViewObj viewObj = new ViewObj(topLayout, (ViewGroup.MarginLayoutParams) topLayout.getLayoutParams());
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.addListener(new Animator.AnimatorListener() {

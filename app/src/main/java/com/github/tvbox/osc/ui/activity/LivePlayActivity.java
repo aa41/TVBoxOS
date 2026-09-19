@@ -9,6 +9,7 @@ import android.animation.IntEvaluator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.CountDownTimer;
@@ -330,6 +331,7 @@ public class LivePlayActivity extends BaseActivity {
         iv_play = findViewById(R.id.iv_play);
 
         tvSelectedChannel = findViewById(R.id.tv_selected_channel);
+        adaptLiveLayout();
 
         if(show){
             backcontroller.setVisibility(View.VISIBLE);
@@ -427,6 +429,33 @@ public class LivePlayActivity extends BaseActivity {
         initLiveChannelList();
         initLiveSettingGroupList();
         Hawk.put(HawkConfig.PLAYER_IS_LIVE,true);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        adaptLiveLayout();
+        mVideoView.requestLayout();
+    }
+
+    private void adaptLiveLayout() {
+        if (tvSelectedChannel == null) return;
+        boolean portrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+        tvSelectedChannel.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, portrait ? 36 : 96);
+        if (portrait) {
+            int width = getResources().getDisplayMetrics().widthPixels;
+            mChannelGroupView.getLayoutParams().width = Math.round(width * .27f);
+            mLiveChannelView.getLayoutParams().width = Math.round(width * .59f);
+            mSettingGroupView.getLayoutParams().width = Math.round(width * .27f);
+            mSettingItemView.getLayoutParams().width = Math.round(width * .59f);
+        } else {
+            mChannelGroupView.getLayoutParams().width = getResources().getDimensionPixelSize(R.dimen.vs_220);
+            mLiveChannelView.getLayoutParams().width = getResources().getDimensionPixelSize(R.dimen.vs_300);
+            mSettingGroupView.getLayoutParams().width = getResources().getDimensionPixelSize(R.dimen.vs_200);
+            mSettingItemView.getLayoutParams().width = getResources().getDimensionPixelSize(R.dimen.vs_420);
+        }
+        tvLeftChannelListLayout.requestLayout();
+        tvRightSettingLayout.requestLayout();
     }
     //获取EPG并存储 // 百川epg  DIYP epg   51zmt epg ------- 自建EPG格式输出格式请参考 51zmt
     private List<Epginfo> epgdata = new ArrayList<>();

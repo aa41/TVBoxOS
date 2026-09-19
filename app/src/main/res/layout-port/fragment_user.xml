@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="8dp">
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="92dp"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/tvUserHome"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp">
+
+            <LinearLayout android:id="@+id/tvHistory" style="@style/PhoneQuickAction" android:contentDescription="历史记录">
+                <ImageView style="@style/PhoneQuickIcon" android:src="@drawable/icon_history" />
+                <TextView style="@style/PhoneQuickLabel" android:text="历史" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/tvLive" style="@style/PhoneQuickAction" android:contentDescription="直播">
+                <ImageView style="@style/PhoneQuickIcon" android:src="@drawable/icon_live" />
+                <TextView style="@style/PhoneQuickLabel" android:text="直播" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/tvSearch" style="@style/PhoneQuickAction" android:contentDescription="搜索">
+                <ImageView style="@style/PhoneQuickIcon" android:src="@drawable/icon_search" />
+                <TextView style="@style/PhoneQuickLabel" android:text="搜索" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/tvPush" style="@style/PhoneQuickAction" android:contentDescription="推送">
+                <ImageView style="@style/PhoneQuickIcon" android:src="@drawable/icon_push" />
+                <TextView style="@style/PhoneQuickLabel" android:text="推送" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/tvFavorite" style="@style/PhoneQuickAction" android:contentDescription="收藏">
+                <ImageView style="@style/PhoneQuickIcon" android:src="@drawable/icon_collect" />
+                <TextView style="@style/PhoneQuickLabel" android:text="收藏" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/tvSetting" style="@style/PhoneQuickAction" android:contentDescription="设置">
+                <ImageView style="@style/PhoneQuickIcon" android:src="@drawable/icon_setting" />
+                <TextView style="@style/PhoneQuickLabel" android:text="设置" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/tvDownloads" style="@style/PhoneQuickAction" android:contentDescription="下载">
+                <ImageView style="@style/PhoneQuickIcon" android:src="@drawable/icon_download" />
+                <TextView style="@style/PhoneQuickLabel" android:text="下载" />
+            </LinearLayout>
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:text="继续观看"
+        android:textColor="#F3F5F3"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <com.owen.tvrecyclerview.widget.TvRecyclerView
+        android:id="@+id/tvHotList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:visibility="gone"
+        app:tv_horizontalSpacingWithMargins="8dp" />
+</LinearLayout>

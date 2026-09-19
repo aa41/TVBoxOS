@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/download_bg"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp">
+
+        <ImageView
+            android:id="@+id/download_back"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:contentDescription="返回"
+            android:focusable="true"
+            android:padding="13dp"
+            android:src="@drawable/icon_back" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_weight="1"
+            android:text="下载"
+            android:textColor="@android:color/white"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/download_manage"
+            android:layout_width="52dp"
+            android:layout_height="44dp"
+            android:contentDescription="管理下载"
+            android:focusable="true"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/download_add"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:contentDescription="添加视频链接"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="+"
+            android:textColor="@android:color/white"
+            android:textSize="27sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/download_summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:textColor="@color/download_muted"
+        android:textSize="12sp" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:fillViewport="false"
+        android:scrollbars="none">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp">
+            <TextView android:id="@+id/download_tab_all" style="@style/DownloadPortraitTab" />
+            <TextView android:id="@+id/download_tab_active" style="@style/DownloadPortraitTab" />
+            <TextView android:id="@+id/download_tab_paused" style="@style/DownloadPortraitTab" />
+            <TextView android:id="@+id/download_tab_done" style="@style/DownloadPortraitTab" />
+            <TextView android:id="@+id/download_tab_failed" style="@style/DownloadPortraitTab" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <LinearLayout
+        android:id="@+id/download_selection_bar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:visibility="gone">
+        <TextView android:id="@+id/download_selected_count"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:textColor="@color/download_muted"
+            android:textSize="12sp" />
+        <TextView android:id="@+id/download_select_all"
+            android:layout_width="wrap_content" android:layout_height="40dp"
+            android:background="@drawable/shape_download_selectable" android:focusable="true"
+            android:gravity="center" android:minWidth="84dp" android:paddingLeft="8dp"
+            android:paddingRight="8dp" android:textColor="@android:color/white"
+            android:textSize="12sp" />
+        <TextView android:id="@+id/download_delete_selected"
+            android:layout_width="80dp" android:layout_height="40dp"
+            android:layout_marginLeft="8dp" android:background="@drawable/shape_download_selectable"
+            android:focusable="true" android:gravity="center" android:text="删除所选"
+            android:textColor="@color/download_error" android:textSize="12sp" />
+    </LinearLayout>
+
+    <View android:layout_width="match_parent" android:layout_height="1dp"
+        android:background="@color/download_divider" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/download_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingLeft="16dp"
+            android:paddingTop="8dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="18dp" />
+        <LinearLayout
+            android:id="@+id/download_empty_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical">
+            <ImageView android:layout_width="54dp" android:layout_height="54dp"
+                android:contentDescription="" android:src="@drawable/icon_empty" />
+            <TextView android:id="@+id/download_empty"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:gravity="center"
+                android:textColor="@color/download_muted" android:textSize="14sp" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

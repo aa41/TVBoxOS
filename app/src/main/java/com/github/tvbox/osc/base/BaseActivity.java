@@ -2,6 +2,7 @@ package com.github.tvbox.osc.base;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
@@ -266,6 +267,12 @@ public abstract class BaseActivity extends AppCompatActivity implements CustomAd
 
     @Override
     public float getSizeInDp() {
+        if (super.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            return 360;
+        }
+        if (super.getResources().getConfiguration().smallestScreenWidthDp < 600) {
+            return 800;
+        }
         return isBaseOnWidth() ? 1280 : 720;
     }
 

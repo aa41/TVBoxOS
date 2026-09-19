@@ -2,6 +2,7 @@ package com.github.tvbox.osc.ui.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.BounceInterpolator;
@@ -23,6 +24,7 @@ import com.github.tvbox.osc.cache.RoomDataManger;
 import com.github.tvbox.osc.event.ServerEvent;
 import com.github.tvbox.osc.ui.activity.CollectActivity;
 import com.github.tvbox.osc.ui.activity.DetailActivity;
+import com.github.tvbox.osc.ui.activity.DownloadActivity;
 import com.github.tvbox.osc.ui.activity.FastSearchActivity;
 import com.github.tvbox.osc.ui.activity.HistoryActivity;
 import com.github.tvbox.osc.ui.activity.LivePlayActivity;
@@ -65,6 +67,7 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
     private LinearLayout tvLive;
     private LinearLayout tvSearch;
     private LinearLayout tvSetting;
+    private LinearLayout tvDownloads;
     private LinearLayout tvHistory;
     private LinearLayout tvCollect;
     private LinearLayout tvPush;
@@ -89,10 +92,11 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
     @Override
     protected void onFragmentResume() {
         super.onFragmentResume();
-        if (Hawk.get(HawkConfig.HOME_REC_STYLE, false)) {
+        if (getResources().getConfiguration().smallestScreenWidthDp < 600
+                || Hawk.get(HawkConfig.HOME_REC_STYLE, false)) {
             tvHotList.setVisibility(View.VISIBLE);
             tvHotList.setHasFixedSize(true);
-            int spanCount = 5;
+            int spanCount = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ? 3 : 5;
             if(style!=null && Hawk.get(HawkConfig.HOME_REC, HawkConfig.DEFAULT_HOME_REC) == 1)spanCount=ImgUtil.spanCountByStyle(style,spanCount);
             tvHotList.setLayoutManager(new V7GridLayoutManager(this.mContext, spanCount));
             int paddingLeft = -tvHotList.mHorizontalSpacingWithMargins / 2 + getResources().getDimensionPixelSize(R.dimen.vs_6);
@@ -160,18 +164,21 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
         tvLive = findViewById(R.id.tvLive);
         tvSearch = findViewById(R.id.tvSearch);
         tvSetting = findViewById(R.id.tvSetting);
+        tvDownloads = findViewById(R.id.tvDownloads);
         tvCollect = findViewById(R.id.tvFavorite);
         tvHistory = findViewById(R.id.tvHistory);
         tvPush = findViewById(R.id.tvPush);
         tvLive.setOnClickListener(this);
         tvSearch.setOnClickListener(this);
         tvSetting.setOnClickListener(this);
+        tvDownloads.setOnClickListener(this);
         tvHistory.setOnClickListener(this);
         tvPush.setOnClickListener(this);
         tvCollect.setOnClickListener(this);
         tvLive.setOnFocusChangeListener(focusChangeListener);
         tvSearch.setOnFocusChangeListener(focusChangeListener);
         tvSetting.setOnFocusChangeListener(focusChangeListener);
+        tvDownloads.setOnFocusChangeListener(focusChangeListener);
         tvHistory.setOnFocusChangeListener(focusChangeListener);
         tvPush.setOnFocusChangeListener(focusChangeListener);
         tvCollect.setOnFocusChangeListener(focusChangeListener);
@@ -378,6 +385,8 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
             jumpActivity(SearchActivity.class);
         } else if (v.getId() == R.id.tvSetting) {
             jumpActivity(SettingActivity.class);
+        } else if (v.getId() == R.id.tvDownloads) {
+            jumpActivity(DownloadActivity.class);
         } else if (v.getId() == R.id.tvHistory) {
             jumpActivity(HistoryActivity.class);
         } else if (v.getId() == R.id.tvPush) {
