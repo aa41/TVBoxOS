@@ -74,6 +74,13 @@
         <activity
             android:name=".ui.activity.LocalFileActivity"
             android:screenOrientation="sensorLandscape" />
+        <activity android:name=".ui.activity.DownloadActivity" android:exported="false"
+            android:screenOrientation="sensorLandscape" />
+        <activity android:name=".ui.activity.DownloadPlayerActivity" android:exported="false" />
+
+        <service android:name=".download.DownloadService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <service
             android:name=".dlna.DLNACastService"

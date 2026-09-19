@@ -341,6 +341,9 @@ public class VodController extends BaseController {
         mParseRoot = findViewById(R.id.parse_root);
         mGridParseView = findViewById(R.id.mGridParseView);
         mPlayerRetry = findViewById(R.id.play_retry);
+        findViewById(R.id.play_download).setOnClickListener(v -> {
+            if (listener != null) listener.downloadCurrent();
+        });
         mPlayrefresh = findViewById(R.id.play_refresh);
         mNextBtn = findViewById(R.id.play_next);
         mPreBtn = findViewById(R.id.play_pre);
@@ -1263,6 +1266,7 @@ public class VodController extends BaseController {
     }
 
     public interface VodControlListener {
+        void downloadCurrent();
         void playNext(boolean rmProgress);
 
         void playPre();

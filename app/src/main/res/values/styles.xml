@@ -18,6 +18,11 @@
         <!--        <item name="android:windowBackground">@drawable/main_bg</item>-->
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
+    <style name="DownloadDialogStyle" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/shape_download_dialog</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="colorAccent">@color/color_FF5F00</item>
+    </style>
     <!-- 自定义dialog样式 -->
     <style name="CustomDialogStyle" parent="@android:style/Theme.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>

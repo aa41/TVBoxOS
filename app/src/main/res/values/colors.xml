@@ -50,6 +50,14 @@
     <color name="dialog_input_bg">#66353744</color>
     <color name="dialog_text_primary">#FFFFFFFF</color>
     <color name="dialog_text_hint">#80FFFFFF</color>
+    <color name="download_bg">#D9181C1D</color>
+    <color name="download_row">#B52A3030</color>
+    <color name="download_control">#75464C4B</color>
+    <color name="download_tab_selected">#99672F18</color>
+    <color name="download_muted">#C1C8C7</color>
+    <color name="download_divider">#5B777876</color>
+    <color name="download_warning">#E8BC70</color>
+    <color name="download_error">#F09389</color>
 
 
 

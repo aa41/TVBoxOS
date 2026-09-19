@@ -41,10 +41,13 @@ import com.github.tvbox.osc.bean.Movie;
 import com.github.tvbox.osc.bean.SourceBean;
 import com.github.tvbox.osc.bean.VodInfo;
 import com.github.tvbox.osc.cache.RoomDataManger;
+import com.github.tvbox.osc.download.DownloadService;
+import com.github.tvbox.osc.download.DownloadStore;
 import com.github.tvbox.osc.event.RefreshEvent;
 import com.github.tvbox.osc.ui.adapter.SeriesAdapter;
 import com.github.tvbox.osc.ui.adapter.SeriesFlagAdapter;
 import com.github.tvbox.osc.ui.dialog.DescDialog;
+import com.github.tvbox.osc.ui.dialog.BatchDownloadDialog;
 import com.github.tvbox.osc.ui.dialog.QuickSearchDialog;
 import com.github.tvbox.osc.ui.fragment.PlayFragment;
 import com.github.tvbox.osc.util.DefaultConfig;
@@ -117,6 +120,7 @@ public class DetailActivity extends BaseActivity {
 //    private TextView tvSort;
     private TextView tvDesc;
     private TextView tvSeriesSort;
+    private TextView tvBatchDownload;
     private TextView tvQuickSearch;
     private TextView tvChangeSource;
     private TextView tvCollect;
@@ -199,6 +203,7 @@ public class DetailActivity extends BaseActivity {
 //        tvSort = findViewById(R.id.tvSort);
         tvDesc = findViewById(R.id.tvDesc);
         tvSeriesSort = findViewById(R.id.mSeriesSortTv);
+        tvBatchDownload = findViewById(R.id.tvBatchDownload);
         tvCollect = findViewById(R.id.tvCollect);
         tvQuickSearch = findViewById(R.id.tvQuickSearch);
         tvChangeSource = findViewById(R.id.tvChangeSource);
@@ -405,6 +410,7 @@ public class DetailActivity extends BaseActivity {
                 }
             }
         });
+        tvBatchDownload.setOnClickListener(v -> showBatchDownload());
         tvDesc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -727,6 +733,26 @@ public class DetailActivity extends BaseActivity {
         }, 100);
     }
 
+    private void showBatchDownload() {
+        if (vodInfo == null || vodInfo.seriesMap == null || TextUtils.isEmpty(vodInfo.playFlag)) return;
+        String flag = vodInfo.playFlag;
+        String site = TextUtils.isEmpty(vodInfo.sourceKey) ? sourceKey : vodInfo.sourceKey;
+        List<VodInfo.VodSeries> episodes = vodInfo.seriesMap.get(flag);
+        if (TextUtils.isEmpty(site) || episodes == null || episodes.isEmpty()) return;
+        String title = vodInfo.name;
+        new BatchDownloadDialog(this, title, flag, episodes, positions -> {
+            List<DownloadStore.Episode> batch = new ArrayList<>();
+            for (int position : positions) {
+                VodInfo.VodSeries episode = episodes.get(position);
+                batch.add(new DownloadStore.Episode(title, episode.name, site, flag, episode.url));
+            }
+            DownloadStore.AddResult result = DownloadStore.get(this).addEpisodes(batch);
+            if (result.added > 0) DownloadService.wake(this);
+            Toast.makeText(this, "已添加 " + result.added + " 集，跳过 " + result.skipped + " 集", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, DownloadActivity.class));
+        }).show();
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     private void setSeriesGroupOptions(){
         List<VodInfo.VodSeries> list = vodInfo.seriesMap.get(vodInfo.playFlag);
@@ -920,6 +946,7 @@ public class DetailActivity extends BaseActivity {
                         mGridViewFlag.setVisibility(View.VISIBLE);
                         mGridView.setVisibility(View.VISIBLE);
                         tvPlay.setVisibility(View.VISIBLE);
+                        tvBatchDownload.setVisibility(View.VISIBLE);
                         mEmptyPlayList.setVisibility(View.GONE);
 
                         VodInfo vodInfoRecord = RoomDataManger.getVodInfo(sourceKey, vodId);
@@ -975,6 +1002,7 @@ public class DetailActivity extends BaseActivity {
                         mGridView.setVisibility(View.GONE);
                         tvSeriesGroup.setVisibility(View.GONE);
                         tvPlay.setVisibility(View.GONE);
+                        tvBatchDownload.setVisibility(View.GONE);
                         mEmptyPlayList.setVisibility(View.VISIBLE);
                         handleNoPlayableDetail();
                     }

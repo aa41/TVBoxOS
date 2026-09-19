@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:layout_marginBottom="@dimen/vs_4"
+    android:background="@drawable/shape_download_selectable"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingLeft="12dp"
+    android:paddingRight="12dp">
+
+    <TextView
+        android:id="@+id/batch_episode_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/dialog_text_primary"
+        android:textSize="@dimen/ts_16" />
+
+    <CheckBox
+        android:id="@+id/batch_episode_check"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:button="@drawable/download_checkbox"
+        android:clickable="false"
+        android:focusable="false" />
+</LinearLayout>

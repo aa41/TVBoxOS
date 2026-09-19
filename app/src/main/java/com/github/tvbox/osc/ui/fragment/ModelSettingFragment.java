@@ -26,6 +26,9 @@ import com.github.tvbox.osc.bean.IJKCode;
 import com.github.tvbox.osc.bean.SourceBean;
 import com.github.tvbox.osc.event.RefreshEvent;
 import com.github.tvbox.osc.ui.activity.LocalFileActivity;
+import com.github.tvbox.osc.ui.activity.DownloadActivity;
+import com.github.tvbox.osc.download.DownloadService;
+import com.github.tvbox.osc.download.DownloadStore;
 import com.github.tvbox.osc.ui.activity.SettingActivity;
 import com.github.tvbox.osc.ui.adapter.ApiHistoryDialogAdapter;
 import com.github.tvbox.osc.ui.adapter.SelectDialogAdapter;
@@ -102,6 +105,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
     private boolean selectLocalLive;
     private TextView tvDanmuOpenText;
     private TextView tvDanmuApiText;
+    private TextView tvDownloadCache;
 
     public static ModelSettingFragment newInstance() {
         return new ModelSettingFragment().setArguments();
@@ -810,6 +814,60 @@ public class ModelSettingFragment extends BaseLazyFragment {
 
         findViewById(R.id.llIjkCachePlay).setOnClickListener((view -> onClickIjkCachePlay(view)));
         findViewById(R.id.llClearCache).setOnClickListener((view -> onClickClearCache(view)));
+        TextView threads = findViewById(R.id.tvDownloadThreads);
+        threads.setText(Hawk.get(HawkConfig.DOWNLOAD_THREADS, 4) + " 线程");
+        findViewById(R.id.llDownloadThreads).setOnClickListener(v -> {
+            String[] choices = {"1 线程", "2 线程", "4 线程", "8 线程"};
+            int[] values = {1, 2, 4, 8};
+            new android.app.AlertDialog.Builder(requireContext()).setTitle("下载并发数")
+                    .setSingleChoiceItems(choices, -1, (dialog, which) -> {
+                        Hawk.put(HawkConfig.DOWNLOAD_THREADS, values[which]);
+                        threads.setText(choices[which]); dialog.dismiss();
+                    }).setNegativeButton("取消", null).show();
+        });
+        TextView wifi = findViewById(R.id.tvDownloadWifi);
+        wifi.setText(Hawk.get(HawkConfig.DOWNLOAD_WIFI_ONLY, false) ? "开启" : "关闭");
+        findViewById(R.id.llDownloadWifi).setOnClickListener(v -> {
+            boolean enabled = !Hawk.get(HawkConfig.DOWNLOAD_WIFI_ONLY, false);
+            Hawk.put(HawkConfig.DOWNLOAD_WIFI_ONLY, enabled);
+            wifi.setText(enabled ? "开启" : "关闭");
+        });
+        findViewById(R.id.llDownloads).setOnClickListener(v -> startActivity(new Intent(requireContext(), DownloadActivity.class)));
+        tvDownloadCache = findViewById(R.id.tvDownloadCache);
+        refreshDownloadCache();
+        findViewById(R.id.llDownloadCache).setOnClickListener(v -> {
+            DownloadStore store = DownloadStore.get(requireContext());
+            int completed = 0;
+            for (DownloadStore.Task task : store.list())
+                if (DownloadStore.DONE.equals(task.state)) completed++;
+            new android.app.AlertDialog.Builder(requireContext())
+                    .setTitle("下载缓存管理")
+                    .setMessage("已完成 " + completed + " 个视频。清理已完成任务及其本地文件？")
+                    .setNegativeButton("取消", null)
+                    .setPositiveButton("清理", (dialog, which) -> new Thread(() -> {
+                        for (DownloadStore.Task task : store.list()) {
+                            if (!DownloadStore.DONE.equals(task.state)) continue;
+                            store.remove(task.id);
+                            DownloadService.deleteFiles(store.directory(task));
+                        }
+                        new Handler(android.os.Looper.getMainLooper()).post(() -> {
+                            if (isAdded()) refreshDownloadCache();
+                        });
+                    }, "download-cache-cleanup").start()).show();
+        });
+    }
+
+    private void refreshDownloadCache() {
+        if (tvDownloadCache == null || getContext() == null) return;
+        int count = 0;
+        for (DownloadStore.Task task : DownloadStore.get(requireContext()).list())
+            if (DownloadStore.DONE.equals(task.state)) count++;
+        tvDownloadCache.setText(count + " 个已完成");
+    }
+
+    @Override public void onResume() {
+        super.onResume();
+        refreshDownloadCache();
     }
 
     private void restartAppAfterConfigChanged() {

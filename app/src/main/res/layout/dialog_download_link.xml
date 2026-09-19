@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="添加视频链接"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/download_link_input"
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/shape_download_row"
+        android:hint="https://.../video.mp4 或 .m3u8"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:textColor="@android:color/white"
+        android:textColorHint="@color/download_muted"
+        android:textSize="15sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:layout_marginTop="12dp"
+        android:gravity="right|center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/download_link_cancel"
+            android:layout_width="76dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/shape_download_selectable"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="取消"
+            android:textColor="@android:color/white"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/download_link_confirm"
+            android:layout_width="76dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="8dp"
+            android:background="@drawable/button_detail_play"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="下载"
+            android:textColor="@android:color/white"
+            android:textSize="14sp" />
+    </LinearLayout>
+</LinearLayout>

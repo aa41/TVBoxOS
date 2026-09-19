@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -53,6 +54,8 @@ import com.github.tvbox.osc.bean.Subtitle;
 import com.github.tvbox.osc.bean.VodInfo;
 import com.github.tvbox.osc.cache.CacheManager;
 import com.github.tvbox.osc.dlna.CastVideo;
+import com.github.tvbox.osc.download.DownloadService;
+import com.github.tvbox.osc.download.DownloadStore;
 import com.github.tvbox.osc.event.RefreshEvent;
 import com.github.tvbox.osc.player.ExoPlayer;
 import com.github.tvbox.osc.player.IjkMediaPlayer;
@@ -65,6 +68,7 @@ import com.github.tvbox.osc.player.danmu.DanmuLoadController;
 import com.github.tvbox.osc.server.ControlManager;
 import com.github.tvbox.osc.ui.adapter.SelectDialogAdapter;
 import com.github.tvbox.osc.ui.activity.DetailActivity;
+import com.github.tvbox.osc.ui.activity.DownloadActivity;
 import com.github.tvbox.osc.ui.dialog.CastDeviceDialog;
 import com.github.tvbox.osc.ui.dialog.DanmuSettingDialog;
 import com.github.tvbox.osc.ui.dialog.EpisodeDialog;
@@ -159,6 +163,8 @@ public class PlayFragment extends BaseLazyFragment {
     private String playLyric;
     private String lyricCacheKey;
     private String playArtwork;
+    private volatile String downloadUrl;
+    private volatile HashMap<String, String> downloadHeaders;
     private DanmakuView mDanmuView;
     private DanmuLoadController danmuLoadController;
     private final List<Cue> exoCues = new ArrayList<>();
@@ -330,6 +336,20 @@ public class PlayFragment extends BaseLazyFragment {
             }
         });
         mController.setListener(new VodController.VodControlListener() {
+            @Override public void downloadCurrent() {
+                String url = !TextUtils.isEmpty(m3u8SourceUrl) && isM3u8ProxyUrl(downloadUrl)
+                        ? m3u8SourceUrl : downloadUrl;
+                if (TextUtils.isEmpty(url) || !(url.startsWith("http://") || url.startsWith("https://"))
+                        || url.contains("127.0.0.1") || url.contains("localhost")) {
+                    Toast.makeText(mContext, "当前播放地址无法离线下载", Toast.LENGTH_SHORT).show(); return;
+                }
+                DownloadStore.Task task = DownloadStore.get(requireContext()).add(getCastTitle(), url, downloadHeaders);
+                if (task != null) {
+                    DownloadService.wake(requireContext());
+                    Toast.makeText(mContext, "已加入下载列表", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(requireContext(), DownloadActivity.class));
+                }
+            }
             @Override
             public void showDanmuSetting() {
                 DanmuSettingDialog dialog = new DanmuSettingDialog(requireContext());
@@ -980,6 +1000,24 @@ public class PlayFragment extends BaseLazyFragment {
             handleResolvePlayUrlFailed("获取播放地址为空");
             return;
         }
+        downloadUrl = url;
+        HashMap<String, String> offlineHeaders = headers == null ? new HashMap<>() : new HashMap<>(headers);
+        if (url.startsWith("http://") || url.startsWith("https://")) {
+            boolean hasCookie = false;
+            for (String key : offlineHeaders.keySet()) if ("cookie".equalsIgnoreCase(key)) hasCookie = true;
+            if (!hasCookie) {
+                try {
+                    String cookie = CookieManager.getInstance().getCookie(url);
+                    if (!TextUtils.isEmpty(cookie)) offlineHeaders.put("Cookie", cookie);
+                } catch (Exception ignored) { }
+            }
+            if (!TextUtils.isEmpty(webUserAgent)) {
+                boolean hasAgent = false;
+                for (String key : offlineHeaders.keySet()) if ("user-agent".equalsIgnoreCase(key)) hasAgent = true;
+                if (!hasAgent) offlineHeaders.put("User-Agent", webUserAgent);
+            }
+        }
+        downloadHeaders = offlineHeaders;
         if(autoRetryCount==0)webPlayUrl=url;
         if (mActivity == null) return;
         if (!isAdded()) return;

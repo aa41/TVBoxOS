@@ -7,6 +7,8 @@ import com.github.tvbox.osc.bean.VodInfo;
 import com.github.tvbox.osc.callback.EmptyCallback;
 import com.github.tvbox.osc.callback.LoadingCallback;
 import com.github.tvbox.osc.data.AppDataManager;
+import com.github.tvbox.osc.download.DownloadService;
+import com.github.tvbox.osc.download.DownloadStore;
 import com.github.tvbox.osc.server.ControlManager;
 import com.github.tvbox.osc.util.AppManager;
 import com.github.tvbox.osc.util.EpgUtil;
@@ -41,6 +43,12 @@ public class App extends MultiDexApplication {
         super.onCreate();
         instance = this;
         initParams();
+        for (DownloadStore.Task task : DownloadStore.get(this).list()) {
+            if (DownloadStore.QUEUED.equals(task.state)) {
+                DownloadService.wake(this);
+                break;
+            }
+        }
         // OKGo
         OkGoHelper.init(); //台标获取
         EpgUtil.init();
