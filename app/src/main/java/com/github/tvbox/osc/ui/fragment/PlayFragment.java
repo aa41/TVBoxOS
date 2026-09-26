@@ -343,7 +343,9 @@ public class PlayFragment extends BaseLazyFragment {
                         || url.contains("127.0.0.1") || url.contains("localhost")) {
                     Toast.makeText(mContext, "当前播放地址无法离线下载", Toast.LENGTH_SHORT).show(); return;
                 }
-                DownloadStore.Task task = DownloadStore.get(requireContext()).add(getCastTitle(), url, downloadHeaders);
+                String cover = mVodInfo == null ? "" : mVodInfo.pic;
+                DownloadStore.Task task = DownloadStore.get(requireContext())
+                        .add(getCastTitle(), url, downloadHeaders, cover);
                 if (task != null) {
                     DownloadService.wake(requireContext());
                     Toast.makeText(mContext, "已加入下载列表", Toast.LENGTH_SHORT).show();

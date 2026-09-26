@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="12dp">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shape_phone_dialog"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:gravity="center_vertical"
+                android:text="字幕设置"
+                android:textColor="@color/dialog_text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/selectInternal"
+                style="@style/SubtitlePortraitAction"
+                android:text="选择内置字幕"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/selectLocal"
+                style="@style/SubtitlePortraitAction"
+                android:layout_marginTop="7dp"
+                android:text="选择本地字幕" />
+
+            <TextView
+                android:id="@+id/selectRemote"
+                style="@style/SubtitlePortraitAction"
+                android:layout_marginTop="7dp"
+                android:text="在线搜索字幕" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginTop="9dp"
+                android:gravity="center_vertical"
+                android:text="字号与显示位置"
+                android:textColor="@color/dialog_text_hint"
+                android:textSize="11sp" />
+
+            <LinearLayout style="@style/SubtitlePortraitRow">
+                <TextView
+                    android:id="@+id/subtitleSizeMinus"
+                    style="@style/SubtitlePortraitSideButton"
+                    android:text="字号减小" />
+                <TextView
+                    android:id="@+id/subtitleSizeText"
+                    style="@style/SubtitlePortraitValue"
+                    android:text="16" />
+                <TextView
+                    android:id="@+id/subtitleSizePlus"
+                    style="@style/SubtitlePortraitSideButton"
+                    android:text="字号增大" />
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/SubtitlePortraitRow"
+                android:layout_marginTop="7dp">
+                <TextView
+                    android:id="@+id/subtitleStyleOne"
+                    style="@style/SubtitlePortraitSideButton"
+                    android:shadowColor="@color/color_CC000000"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="2"
+                    android:text="样式一" />
+                <TextView
+                    android:id="@+id/subtitlePositionText"
+                    style="@style/SubtitlePortraitValue"
+                    android:text="0%" />
+                <TextView
+                    android:id="@+id/subtitleStyleTwo"
+                    style="@style/SubtitlePortraitSideButton"
+                    android:shadowColor="@color/dialog_text_primary"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="2"
+                    android:text="样式二"
+                    android:textColor="@color/color_FFB6C1"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/subtitleTimeHint"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginTop="9dp"
+                android:gravity="center_vertical"
+                android:text="字幕延时仅对外挂字幕有效"
+                android:textColor="@color/dialog_text_hint"
+                android:textSize="11sp" />
+
+            <LinearLayout style="@style/SubtitlePortraitRow">
+                <TextView
+                    android:id="@+id/subtitleTimeMinus"
+                    style="@style/SubtitlePortraitSideButton"
+                    android:text="字幕提前" />
+                <TextView
+                    android:id="@+id/subtitleTimeText"
+                    style="@style/SubtitlePortraitValue"
+                    android:text="0" />
+                <TextView
+                    android:id="@+id/subtitleTimePlus"
+                    style="@style/SubtitlePortraitSideButton"
+                    android:text="字幕推迟" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>

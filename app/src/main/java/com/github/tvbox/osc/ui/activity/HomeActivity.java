@@ -274,6 +274,10 @@ public class HomeActivity extends BaseActivity {
 
             @Override
             public void onItemClick(TvRecyclerView parent, View itemView, int position) {
+                if (isPortrait() && position != currentSelected) {
+                    selectCategory(position);
+                    return;
+                }
                 if (itemView != null && currentSelected == position) {
                     BaseLazyFragment baseLazyFragment = fragments.get(currentSelected);
                     if ((baseLazyFragment instanceof GridFragment) && !sortAdapter.getItem(position).filters.isEmpty()) {// 弹出筛选
@@ -636,6 +640,7 @@ public class HomeActivity extends BaseActivity {
         TextView home = findViewById(R.id.navHome);
         TextView discover = findViewById(R.id.navDiscover);
         if (home == null) return;
+        if (sortAdapter != null) sortAdapter.setPortraitSelection(currentSelected);
         home.setTextColor(getResources().getColor(currentSelected == 0 ? android.R.color.white : R.color.color_CCFFFFFF));
         discover.setTextColor(getResources().getColor(currentSelected != 0 ? android.R.color.white : R.color.color_CCFFFFFF));
     }
@@ -914,13 +919,14 @@ public class HomeActivity extends BaseActivity {
             mSiteSwitchDialog = new SelectDialog<>(HomeActivity.this);
             TvRecyclerView tvRecyclerView = mSiteSwitchDialog.findViewById(R.id.list);
             // 根据 sites 数量动态计算列数
-            int spanCount = (int) Math.floor(sites.size() / 20.0);
-            spanCount = Math.min(spanCount, 2);
+            int spanCount = isPortrait() ? 0 : Math.min(sites.size() / 20, 2);
             tvRecyclerView.setLayoutManager(new V7GridLayoutManager(mSiteSwitchDialog.getContext(), spanCount + 1));
             // 设置对话框宽度
             ConstraintLayout cl_root = mSiteSwitchDialog.findViewById(R.id.cl_root);
             ViewGroup.LayoutParams clp = cl_root.getLayoutParams();
-            clp.width = AutoSizeUtils.mm2px(mSiteSwitchDialog.getContext(), 380 + 200 * spanCount);
+            clp.width = isPortrait()
+                    ? getResources().getDisplayMetrics().widthPixels - AutoSizeUtils.dp2px(this, 32)
+                    : AutoSizeUtils.mm2px(mSiteSwitchDialog.getContext(), 380 + 200 * spanCount);
             mSiteSwitchDialog.setTip("请选择首页数据源");
         }
         mSiteSwitchDialog.setAdapter(new SelectDialogAdapter.SelectDialogInterface<SourceBean>() {

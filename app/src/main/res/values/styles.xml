@@ -5,13 +5,13 @@
         <item name="android:layout_weight">1</item>
         <item name="android:gravity">center</item>
         <item name="android:textColor">#AAB5B4</item>
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">11sp</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
     </style>
     <style name="PhoneQuickAction">
-        <item name="android:layout_width">64dp</item>
-        <item name="android:layout_height">76dp</item>
+        <item name="android:layout_width">58dp</item>
+        <item name="android:layout_height">64dp</item>
         <item name="android:layout_marginEnd">4dp</item>
         <item name="android:gravity">center</item>
         <item name="android:orientation">vertical</item>
@@ -20,27 +20,27 @@
         <item name="android:background">@drawable/shape_user_focus</item>
     </style>
     <style name="PhoneQuickIcon">
-        <item name="android:layout_width">24dp</item>
-        <item name="android:layout_height">24dp</item>
+        <item name="android:layout_width">20dp</item>
+        <item name="android:layout_height">20dp</item>
         <item name="android:alpha">0.85</item>
     </style>
     <style name="PhoneQuickLabel">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:layout_marginTop">4dp</item>
         <item name="android:textColor">#D7DDDA</item>
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">11sp</item>
     </style>
     <style name="PhoneSearchButton">
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">44dp</item>
+        <item name="android:layout_height">40dp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:layout_marginEnd">8dp</item>
         <item name="android:background">@drawable/shape_user_focus</item>
         <item name="android:focusable">true</item>
         <item name="android:gravity">center</item>
         <item name="android:textColor">@android:color/white</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">13sp</item>
     </style>
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -69,15 +69,49 @@
     <style name="DownloadPortraitTab">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">38dp</item>
-        <item name="android:layout_marginRight">6dp</item>
+        <item name="android:layout_marginRight">4dp</item>
         <item name="android:background">@drawable/shape_download_tab</item>
         <item name="android:focusable">true</item>
         <item name="android:gravity">center</item>
-        <item name="android:minWidth">62dp</item>
-        <item name="android:paddingLeft">10dp</item>
-        <item name="android:paddingRight">10dp</item>
+        <item name="android:minWidth">56dp</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
         <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">11sp</item>
+    </style>
+    <style name="SubtitlePortraitAction">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">42dp</item>
+        <item name="android:background">@drawable/button_danmu_setting</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/dialog_text_primary</item>
         <item name="android:textSize">12sp</item>
+    </style>
+    <style name="SubtitlePortraitRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">42dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+    <style name="SubtitlePortraitSideButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@drawable/button_danmu_setting</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/dialog_text_primary</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+    <style name="SubtitlePortraitValue">
+        <item name="android:layout_width">58dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_marginLeft">6dp</item>
+        <item name="android:layout_marginRight">6dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/dialog_text_primary</item>
+        <item name="android:textSize">13sp</item>
     </style>
     <!-- 自定义dialog样式 -->
     <style name="CustomDialogStyle" parent="@android:style/Theme.Dialog">

@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.bean.SourceBean;
-import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.util.SearchHelper;
 
 import org.jetbrains.annotations.NotNull;
@@ -63,8 +62,7 @@ public class CheckboxSearchAdapter extends ListAdapter<SourceBean, CheckboxSearc
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        int pos = holder.getAdapterPosition();
-        SourceBean sourceBean = data.get(pos);
+        SourceBean sourceBean = data.get(position);
         holder.oneSearchSource.setText(sourceBean.getName());
         holder.oneSearchSource.setOnCheckedChangeListener(null);
         if (mCheckedSources != null) {
@@ -79,7 +77,6 @@ public class CheckboxSearchAdapter extends ListAdapter<SourceBean, CheckboxSearc
                 } else {
                     mCheckedSources.remove(sourceBean.getKey());
                 }
-                notifyItemChanged(pos);
             }
         });
 

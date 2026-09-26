@@ -124,6 +124,7 @@ public class VodController extends BaseController {
                         }else {
                             net_play_speed.setVisibility(GONE);
                         }
+                        applyOfflineMenu();
                         boolean isPortrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
                         backBtn.setVisibility(ScreenUtils.isTv(context) || isPortrait ? INVISIBLE : VISIBLE);
                         showLockView();
@@ -260,6 +261,9 @@ public class VodController extends BaseController {
     TextView net_play_speed;
     private boolean hasDanmu = false;
     private boolean showParse;
+    private boolean offlineMode;
+    private boolean offlineHasPrevious;
+    private boolean offlineHasNext;
 
     LockRunnable lockRunnable = new LockRunnable();
     private boolean isLock = false;
@@ -1076,6 +1080,7 @@ public class VodController extends BaseController {
             mPlayerTimeSkipBtn.setVisibility(View.VISIBLE);
             mPlayerTimeResetBtn.setVisibility(View.VISIBLE);
         }
+        applyOfflineMenu();
     }
 
     public void initLandscapePortraitBtnInfo() {
@@ -1120,6 +1125,7 @@ public class VodController extends BaseController {
             mDanmuSettingBtn.setVisibility(GONE);
             mDanmuSearchUiBtn.setVisibility(GONE);
             mScreenDisplay.setVisibility(GONE);
+            applyOfflineMenu();
             return;
         }
 
@@ -1136,6 +1142,7 @@ public class VodController extends BaseController {
         if (mPlayerConfig != null) updatePlayerCfgView();
         updateDanmuBtn();
         updateDanmuSearchUiBtn();
+        applyOfflineMenu();
     }
 
     void setLandscapePortrait() {
@@ -1178,6 +1185,44 @@ public class VodController extends BaseController {
         updatePlayerCfgView();
     }
 
+    /**
+     * Reuses the normal VOD controller for downloaded files while removing controls that
+     * depend on an online source, parser, or remote service.
+     */
+    public void setOfflineMode(boolean hasPrevious, boolean hasNext) {
+        offlineMode = true;
+        offlineHasPrevious = hasPrevious;
+        offlineHasNext = hasNext;
+        applyOfflineMenu();
+    }
+
+    private void applyOfflineMenu() {
+        if (!offlineMode || mPlayBtnGroup == null) return;
+        mPlayLabel.setText("离线");
+        mNextBtn.setVisibility(offlineHasNext ? VISIBLE : GONE);
+        mPreBtn.setVisibility(offlineHasPrevious ? VISIBLE : GONE);
+        mPlayerRetry.setText("重播");
+        findViewById(R.id.play_download).setVisibility(GONE);
+        mPlayrefresh.setVisibility(GONE);
+        mPlayerBtn.setVisibility(GONE);
+        mPlayerIJKBtn.setVisibility(GONE);
+        mPlayerTimeStartEndText.setVisibility(GONE);
+        mPlayerTimeStartBtn.setVisibility(GONE);
+        mPlayerTimeSkipBtn.setVisibility(GONE);
+        mPlayerTimeResetBtn.setVisibility(GONE);
+        mCastBtn.setVisibility(GONE);
+        mZimuBtn.setVisibility(GONE);
+        mAudioTrackBtn.setVisibility(GONE);
+        mVideoTrackBtn.setVisibility(GONE);
+        mDanmuSettingBtn.setVisibility(GONE);
+        mDanmuSearchUiBtn.setVisibility(GONE);
+        mScreenDisplay.setVisibility(GONE);
+        mParseRoot.setVisibility(GONE);
+        mTopRoot2.setVisibility(GONE);
+        mPlayLoadNetSpeedRightTop.setVisibility(GONE);
+        updatePlayLabelVisibility();
+    }
+
     void updatePlayerCfgView() {
         try {
             int playerType = mPlayerConfig.getInt("pl");
@@ -1196,6 +1241,7 @@ public class VodController extends BaseController {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        applyOfflineMenu();
     }
 
     private String getPlayerShortName(int playerType) {
@@ -1235,12 +1281,20 @@ public class VodController extends BaseController {
 
     public void updateDanmuBtn() {
         if (mDanmuSettingBtn == null) return;
+        if (offlineMode) {
+            mDanmuSettingBtn.setVisibility(GONE);
+            return;
+        }
         mDanmuSettingBtn.setVisibility(DanmuHelper.isOpen() ? VISIBLE : GONE);
         updatePlayLabelVisibility();
     }
 
     public void updateDanmuSearchUiBtn() {
         if (mDanmuSearchUiBtn == null) return;
+        if (offlineMode) {
+            mDanmuSearchUiBtn.setVisibility(GONE);
+            return;
+        }
         boolean hasDanmuSearchUi = ApiConfig.get().hasDanmuSearchUi();
         mDanmuSearchUiBtn.setVisibility(hasDanmuSearchUi ? VISIBLE : GONE);
         updatePlayLabelVisibility();
@@ -1545,7 +1599,13 @@ public class VodController extends BaseController {
     void showBottom() {
         mHandler.removeMessages(1003);
         mHandler.sendEmptyMessage(1002);
-        mNextBtn.requestFocus();
+        if (offlineMode) {
+            if (offlineHasNext) mNextBtn.requestFocus();
+            else if (offlineHasPrevious) mPreBtn.requestFocus();
+            else mPlayerRetry.requestFocus();
+        } else {
+            mNextBtn.requestFocus();
+        }
     }
 
     void showUpBottom() {

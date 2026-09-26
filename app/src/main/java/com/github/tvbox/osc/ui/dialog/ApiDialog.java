@@ -2,8 +2,11 @@ package com.github.tvbox.osc.ui.dialog;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -46,6 +49,21 @@ public class ApiDialog extends BaseDialog {
     private EditText inputApi;
     private EditText inputApiLive;
     private View inputConfirm;
+
+    @Override
+    public void show() {
+        super.show();
+        if (getContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT && isShowing()) {
+            Window window = getWindow();
+            if (window != null) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+                window.setDimAmount(0.55f);
+                window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+                window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+                        | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+            }
+        }
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void refresh(RefreshEvent event) {
@@ -186,8 +204,10 @@ public class ApiDialog extends BaseDialog {
 
     private void refreshQRCode() {
         String address = ControlManager.get().getAddress(false);
-        tvAddress.setText(String.format("手机/电脑扫描上方二维码或者直接浏览器访问地址\n%s", address));
-        ivQRCode.setImageBitmap(QRCodeGen.generateBitmap(address+"api.html", AutoSizeUtils.mm2px(getContext(), 300), AutoSizeUtils.mm2px(getContext(), 300)));
+        boolean portrait = getContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+        tvAddress.setText(String.format(portrait ? "扫码或浏览器访问\n%s" : "手机/电脑扫描上方二维码或者直接浏览器访问地址\n%s", address));
+        int size = portrait ? AutoSizeUtils.dp2px(getContext(), 120) : AutoSizeUtils.mm2px(getContext(), 300);
+        ivQRCode.setImageBitmap(QRCodeGen.generateBitmap(address + "api.html", size, size));
     }
 
     private void saveAndDismiss() {

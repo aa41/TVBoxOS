@@ -32,7 +32,7 @@ public class SearchHelper {
         } catch (Exception e) {
             return null;
         }
-        if (mCheckSources == null || mCheckSources.isEmpty()) {
+        if (mCheckSources == null) {
             mCheckSources = getSources();
         }
 //        else {
@@ -64,8 +64,8 @@ public class SearchHelper {
         HashMap<String, HashMap<String, String>> mCheckSourcesForApi = Hawk.get(HawkConfig.SOURCES_FOR_SEARCH,null);
 
         if(isAll){
-            if (mCheckSourcesForApi == null) return;
-            if (mCheckSourcesForApi.containsKey(api)) mCheckSourcesForApi.remove(api);
+            if (mCheckSourcesForApi == null) mCheckSourcesForApi = new HashMap<>();
+            mCheckSourcesForApi.remove(api);
         }else {
             if (mCheckSourcesForApi == null) mCheckSourcesForApi = new HashMap<>();
             mCheckSourcesForApi.put(api, mCheckSources);

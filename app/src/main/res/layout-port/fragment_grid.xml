@@ -10,9 +10,9 @@
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:paddingStart="12dp"
-        android:paddingTop="8dp"
+        android:paddingTop="4dp"
         android:paddingEnd="12dp"
         android:paddingBottom="12dp"
         app:tv_horizontalSpacingWithMargins="4dp"
-        app:tv_verticalSpacingWithMargins="8dp" />
+        app:tv_verticalSpacingWithMargins="6dp" />
 </LinearLayout>

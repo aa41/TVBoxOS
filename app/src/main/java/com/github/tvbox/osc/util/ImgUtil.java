@@ -166,12 +166,12 @@ public class ImgUtil {
         load(url, view, 10);
     }
 
-    public static void loadVideoScreenshot(String uri, ImageView imageView, long frameTimeMicros) {
-        RequestOptions requestOptions = RequestOptions.frameOf(frameTimeMicros * 1000)
+    public static void loadVideoScreenshot(String uri, ImageView imageView, long frameTimeMillis) {
+        RequestOptions requestOptions = RequestOptions.frameOf(frameTimeMillis * 1000)
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .transform(new CenterCrop(), new RoundedCorners(10));
         Glide.with(App.getInstance())
                 .load(uri)
-                .skipMemoryCache(true)
                 .apply(requestOptions)
                 .into(imageView);
     }

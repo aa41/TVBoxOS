@@ -66,7 +66,10 @@
         <activity
             android:name=".ui.activity.LocalFileActivity" />
         <activity android:name=".ui.activity.DownloadActivity" android:exported="false" />
-        <activity android:name=".ui.activity.DownloadPlayerActivity" android:exported="false" />
+        <activity
+            android:name=".ui.activity.DownloadPlayerActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="false" />
 
         <service android:name=".download.DownloadService"
             android:exported="false"

@@ -2,7 +2,6 @@ package com.github.tvbox.osc.ui.activity;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -103,6 +102,7 @@ public class SearchActivity extends BaseActivity {
     private LinearLayout llHistoryWord;
     private TvRecyclerView mGridView;
     private TvRecyclerView mGridViewWord;
+    private LinearLayout llWord;
     private GridLayout historyWordGrid;
     SourceViewModel sourceViewModel;
     private RemoteDialog remoteDialog;
@@ -175,6 +175,7 @@ public class SearchActivity extends BaseActivity {
     private void initView() {
         EventBus.getDefault().register(this);
         llLayout = findViewById(R.id.llLayout);
+        llWord = findViewById(R.id.llWord);
         llHistoryWord = findViewById(R.id.llHistoryWord);
         etSearch = findViewById(R.id.etSearch);
         tvSearch = findViewById(R.id.tvSearch);
@@ -278,8 +279,18 @@ public class SearchActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
+                cancel();
+                getIntent().removeExtra("title");
+                searchAdapter.setNewData(new ArrayList<>());
+                showSuccess();
+                mGridView.setVisibility(View.INVISIBLE);
                 initData();
                 etSearch.setText("");
+                if (getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
+                    llWord.setVisibility(View.VISIBLE);
+                    llHistoryWord.setVisibility(aggregateSearchMode ? View.VISIBLE : View.GONE);
+                    llLayout.setVisibility(aggregateSearchMode ? View.GONE : View.VISIBLE);
+                }
             }
         });
 
@@ -361,19 +372,8 @@ public class SearchActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 List<SourceBean> searchAbleSource = ApiConfig.get().getSearchSourceBeanList();
-                if (mSearchCheckboxDialog == null) {
-                    mSearchCheckboxDialog = new SearchCheckboxDialog(SearchActivity.this, searchAbleSource, mCheckSources);
-                }else {
-                    if(searchAbleSource.size()!=mSearchCheckboxDialog.mSourceList.size()){
-                        mSearchCheckboxDialog.setMSourceList(searchAbleSource);
-                    }
-                }
-                mSearchCheckboxDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        dialog.dismiss();
-                    }
-                });
+                mCheckSources = SearchHelper.getSourcesForSearch();
+                mSearchCheckboxDialog = new SearchCheckboxDialog(SearchActivity.this, searchAbleSource, mCheckSources);
                 mSearchCheckboxDialog.show();
             }
         });
@@ -397,11 +397,11 @@ public class SearchActivity extends BaseActivity {
     }
 
     private void setAggregateHotTitle() {
-        wordsSwitch.setText("热  门");
+        wordsSwitch.setText("热门");
         wordsSwitch.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.ts_22));
         wordsSwitch.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            wordsSwitch.setLetterSpacing(0.08f);
+            wordsSwitch.setLetterSpacing(0f);
         }
     }
 
@@ -751,6 +751,11 @@ public class SearchActivity extends BaseActivity {
             remoteDialog = null;
         }
         showLoading();
+        if (getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
+            llWord.setVisibility(View.GONE);
+            llHistoryWord.setVisibility(View.GONE);
+            llLayout.setVisibility(View.VISIBLE);
+        }
         etSearch.setText(title);
 
         //写入历史记录

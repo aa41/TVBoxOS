@@ -2,8 +2,11 @@ package com.github.tvbox.osc.ui.dialog;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,9 +17,9 @@ import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.bean.SourceBean;
 import com.github.tvbox.osc.ui.adapter.CheckboxSearchAdapter;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
+import com.github.tvbox.osc.util.SearchHelper;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7GridLayoutManager;
-import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -43,7 +46,7 @@ public class SearchCheckboxDialog extends BaseDialog{
         setCanceledOnTouchOutside(false);
         setCancelable(true);
         mSourceList = sourceList;
-        mCheckSourcees = checkedSources;
+        mCheckSourcees = checkedSources == null ? SearchHelper.getSources() : checkedSources;
         setContentView(R.layout.dialog_checkbox_search);
         initView(context);
     }
@@ -52,6 +55,45 @@ public class SearchCheckboxDialog extends BaseDialog{
     public void dismiss() {
         checkboxSearchAdapter.setMCheckedSources();
         super.dismiss();
+    }
+
+    @Override
+    public void show() {
+        super.show();
+        if (isPortrait() && isShowing()) {
+            Window window = getWindow();
+            if (window != null) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+                window.setDimAmount(0.55f);
+                window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+            }
+        }
+    }
+
+    private boolean isPortrait() {
+        return getContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+    }
+
+    private void updatePanelSize() {
+        View root = findViewById(R.id.root);
+        boolean empty = mSourceList.isEmpty();
+        findViewById(R.id.sourceActions).setVisibility(empty ? View.GONE : View.VISIBLE);
+        findViewById(R.id.emptyState).setVisibility(empty ? View.VISIBLE : View.GONE);
+        mGridView.setVisibility(empty ? View.GONE : View.VISIBLE);
+        ViewGroup.LayoutParams params = root.getLayoutParams();
+        if (isPortrait()) {
+            int screenHeight = getContext().getResources().getDisplayMetrics().heightPixels;
+            int contentHeight = AutoSizeUtils.dp2px(getContext(), empty ? 112 : 108 + 46 * mSourceList.size());
+            params.height = Math.min(contentHeight, Math.min(
+                    screenHeight - AutoSizeUtils.dp2px(getContext(), 80),
+                    AutoSizeUtils.dp2px(getContext(), 560)));
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+        } else {
+            int columns = Math.max(1, Math.min(3, (int) Math.floor(mSourceList.size() / 10.0)));
+            params.width = AutoSizeUtils.mm2px(getContext(), 400 + 260 * (columns - 1));
+            params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        }
+        root.setLayoutParams(params);
     }
 
     protected void initView(Context context) {
@@ -72,13 +114,9 @@ public class SearchCheckboxDialog extends BaseDialog{
         mGridView.setHasFixedSize(true);
 
         int size = mSourceList.size();
-        int spanCount = (int) Math.floor(size / 10);
-        if (spanCount <= 0) spanCount = 1;
-        if (spanCount > 3) spanCount = 3;
+        int spanCount = isPortrait() ? 1 : Math.max(1, Math.min(3, size / 10));
         mGridView.setLayoutManager(new V7GridLayoutManager(getContext(), spanCount));
-        View root = findViewById(R.id.root);
-        ViewGroup.LayoutParams clp = root.getLayoutParams();
-        clp.width = AutoSizeUtils.mm2px(getContext(), 400 + 260 * (spanCount - 1));
+        updatePanelSize();
 
         mGridView.setAdapter(checkboxSearchAdapter);
         checkboxSearchAdapter.setData(mSourceList, mCheckSourcees);
@@ -118,10 +156,13 @@ public class SearchCheckboxDialog extends BaseDialog{
                 checkboxSearchAdapter.setData(mSourceList, mCheckSourcees);
             }
         });
+        View done = findViewById(R.id.done);
+        if (done != null) done.setOnClickListener(v -> dismiss());
     }
 
     public void setMSourceList(List<SourceBean> SourceBeanList) {
         mSourceList = SourceBeanList;
         checkboxSearchAdapter.setData(mSourceList, mCheckSourcees);
+        updatePanelSize();
     }
 }

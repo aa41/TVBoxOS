@@ -756,7 +756,8 @@ public class DetailActivity extends BaseActivity {
             List<DownloadStore.Episode> batch = new ArrayList<>();
             for (int position : positions) {
                 VodInfo.VodSeries episode = episodes.get(position);
-                batch.add(new DownloadStore.Episode(title, episode.name, site, flag, episode.url));
+                batch.add(new DownloadStore.Episode(title, episode.name, site, flag,
+                        episode.url, vodInfo.pic));
             }
             DownloadStore.AddResult result = DownloadStore.get(this).addEpisodes(batch);
             if (result.added > 0) DownloadService.wake(this);

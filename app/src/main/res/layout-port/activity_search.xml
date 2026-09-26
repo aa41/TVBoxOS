@@ -5,44 +5,59 @@
     android:layout_height="match_parent"
     android:background="#101416"
     android:orientation="vertical"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp">
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <TextView
-            android:id="@+id/tvSearchCheckboxBtn"
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="44dp"
             android:gravity="center_vertical"
-            android:focusable="true"
-            android:text="指定搜索源"
-            android:textColor="@android:color/white"
-            android:textSize="13sp" />
-        <EditText
-            android:id="@+id/etSearch"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@drawable/input_search"
-            android:hint="搜索影片"
-            android:inputType="text"
-            android:imeOptions="actionSearch"
-            android:maxLines="1"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:textColor="@android:color/white"
-            android:textColorHint="#AAB5B4"
-            android:textSize="15sp" />
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/etSearch"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/input_search"
+                android:hint="搜索影片"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:maxLines="1"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:textColor="@android:color/white"
+                android:textColorHint="#AAB5B4"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvSearchCheckboxBtn"
+                android:layout_width="76dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/shape_user_focus"
+                android:contentDescription="选择搜索数据源"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="数据源"
+                android:textColor="@android:color/white"
+                android:textSize="12sp" />
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="8dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="4dp"
             android:orientation="horizontal">
             <TextView android:id="@+id/tvSearch" style="@style/PhoneSearchButton" android:text="搜索" />
             <TextView android:id="@+id/tvClear" style="@style/PhoneSearchButton" android:text="清空" />
         </LinearLayout>
+
         <com.github.tvbox.osc.ui.tv.widget.SearchKeyboard
             android:id="@+id/keyBoardRoot"
             android:layout_width="match_parent"
@@ -53,42 +68,63 @@
     <LinearLayout
         android:id="@+id/llWord"
         android:layout_width="match_parent"
-        android:layout_height="220dp"
+        android:layout_height="104dp"
         android:orientation="vertical">
         <TextView
             android:id="@+id/wordSwitch"
             android:layout_width="match_parent"
-            android:layout_height="32dp"
-            android:gravity="center_vertical"
+            android:layout_height="28dp"
             android:focusable="true"
+            android:gravity="center_vertical"
             android:text="热词 | 历史"
             android:textColor="#AAB5B4"
-            android:textSize="13sp" />
+            android:textSize="12sp" />
         <com.owen.tvrecyclerview.widget.TvRecyclerView
             android:id="@+id/mGridViewWord"
             android:layout_width="match_parent"
-            android:layout_height="188dp"
-            app:tv_verticalSpacingWithMargins="4dp" />
+            android:layout_height="76dp"
+            app:tv_verticalSpacingWithMargins="3dp" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/llHistoryWord"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="vertical"
         android:visibility="gone">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="32dp" android:orientation="horizontal">
-            <TextView android:id="@+id/tvHistoryTitle" android:layout_width="0dp" android:layout_height="match_parent"
-                android:layout_weight="1" android:gravity="center_vertical" android:text="搜索历史"
-                android:textColor="#AAB5B4" android:textSize="13sp" />
-            <ImageView android:id="@+id/tvHistoryClear" android:layout_width="48dp" android:layout_height="match_parent"
-                android:contentDescription="清空历史" android:padding="12dp" android:src="@drawable/icon_clear" />
-        </LinearLayout>
-        <GridLayout
-            android:id="@+id/historyWordGrid"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:columnCount="1" />
+            android:layout_height="30dp"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/tvHistoryTitle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="搜索历史"
+                android:textColor="#AAB5B4"
+                android:textSize="12sp" />
+            <ImageView
+                android:id="@+id/tvHistoryClear"
+                android:layout_width="44dp"
+                android:layout_height="match_parent"
+                android:contentDescription="清空历史"
+                android:padding="10dp"
+                android:src="@drawable/icon_clear" />
+        </LinearLayout>
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true">
+            <GridLayout
+                android:id="@+id/historyWordGrid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="1" />
+        </ScrollView>
     </LinearLayout>
 
     <LinearLayout
@@ -102,6 +138,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="invisible"
-            app:tv_verticalSpacingWithMargins="6dp" />
+            app:tv_verticalSpacingWithMargins="4dp" />
     </LinearLayout>
 </LinearLayout>

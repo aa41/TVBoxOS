@@ -1,9 +1,11 @@
 package com.github.tvbox.osc.ui.activity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +29,8 @@ import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.base.BaseActivity;
 import com.github.tvbox.osc.download.DownloadService;
 import com.github.tvbox.osc.download.DownloadStore;
+import com.github.tvbox.osc.util.ImgUtil;
+import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -207,7 +212,9 @@ public class DownloadActivity extends BaseActivity {
             return;
         }
         startActivity(new Intent(this, DownloadPlayerActivity.class)
-                .putExtra("path", task.path).putExtra("title", task.title));
+                .putExtra("taskId", task.id)
+                .putExtra("path", task.path)
+                .putExtra("title", task.title));
     }
 
     private void delete(DownloadStore.Task task) {
@@ -299,7 +306,8 @@ public class DownloadActivity extends BaseActivity {
                     DownloadStore.Task a = previous.get(oldIndex), b = next.get(newIndex);
                     return a.state.equals(b.state) && a.bytes == b.bytes && a.total == b.total
                             && a.items == b.items && a.itemCount == b.itemCount
-                            && same(a.error, b.error) && same(a.path, b.path) && same(a.url, b.url);
+                            && same(a.error, b.error) && same(a.path, b.path) && same(a.url, b.url)
+                            && same(a.cover, b.cover) && same(a.title, b.title);
                 }
             });
             tasks = next;
@@ -319,16 +327,20 @@ public class DownloadActivity extends BaseActivity {
 
         @Override public void onBindViewHolder(@NonNull Holder holder, int position) {
             DownloadStore.Task task = tasks.get(position);
-            holder.name.setText(task.title);
+            boolean grouped = !TextUtils.isEmpty(task.collection);
+            holder.name.setText(grouped ? task.collection : task.title);
             holder.check.setVisibility(selectionMode ? View.VISIBLE : View.GONE);
             holder.check.setChecked(selected.contains(task.id));
             holder.itemView.setFocusable(selectionMode);
-            holder.itemView.setOnClickListener(selectionMode
-                    ? v -> toggleSelection(task.id, holder.getBindingAdapterPosition()) : null);
-            holder.meta.setText(task.collection.isEmpty() ? "在线视频" : "线路  ·  " + task.playFlag);
             boolean done = DownloadStore.DONE.equals(task.state);
             boolean running = DownloadStore.RUNNING.equals(task.state);
             boolean failed = DownloadStore.FAILED.equals(task.state);
+            holder.itemView.setOnClickListener(selectionMode
+                    ? v -> toggleSelection(task.id, holder.getBindingAdapterPosition())
+                    : done ? v -> play(task) : null);
+            String meta = grouped ? task.episode : "在线视频";
+            if (!TextUtils.isEmpty(task.playFlag)) meta += "  ·  " + task.playFlag;
+            holder.meta.setText(meta);
             holder.state.setText(done ? "已完成" : running ? task.url.isEmpty() ? "解析中" : "下载中"
                     : DownloadStore.QUEUED.equals(task.state) ? "排队中"
                     : DownloadStore.PAUSED.equals(task.state) ? "已暂停" : "失败");
@@ -350,6 +362,8 @@ public class DownloadActivity extends BaseActivity {
             holder.primary.setText(done ? "播放" : running || DownloadStore.QUEUED.equals(task.state) ? "暂停" : "继续");
             holder.primary.setVisibility(selectionMode ? View.GONE : View.VISIBLE);
             holder.delete.setVisibility(selectionMode ? View.GONE : View.VISIBLE);
+            holder.coverPlay.setVisibility(done && !selectionMode ? View.VISIBLE : View.GONE);
+            bindCover(holder.cover, task, done);
             holder.primary.setOnClickListener(v -> {
                 if (done) play(task);
                 else change(task.id, task.state, running || DownloadStore.QUEUED.equals(task.state)
@@ -358,17 +372,42 @@ public class DownloadActivity extends BaseActivity {
             holder.delete.setOnClickListener(v -> delete(task));
         }
 
+        private void bindCover(ImageView cover, DownloadStore.Task task, boolean done) {
+            Glide.with(cover).clear(cover);
+            cover.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            cover.setImageResource(R.drawable.icon_img_placeholder);
+            if (!TextUtils.isEmpty(task.cover)) {
+                ImgUtil.load(task.cover, cover, dp(8), 0, 0,
+                        TextUtils.isEmpty(task.collection) ? task.title : task.collection);
+            } else if (done && !TextUtils.isEmpty(task.path) && new File(task.path).isFile()) {
+                ImgUtil.loadVideoScreenshot(Uri.fromFile(new File(task.path)).toString(), cover, 1_000L);
+            }
+        }
+
+        private int dp(int value) {
+            return Math.round(value * getResources().getDisplayMetrics().density);
+        }
+
+        @Override
+        public void onViewRecycled(@NonNull Holder holder) {
+            Glide.with(holder.cover).clear(holder.cover);
+            super.onViewRecycled(holder);
+        }
+
         @Override public int getItemCount() { return tasks.size(); }
 
         final class Holder extends RecyclerView.ViewHolder {
             final TextView name, meta, state, detail, primary;
             final CheckBox check;
-            final View delete;
+            final View delete, coverPlay;
+            final ImageView cover;
             final ProgressBar progress;
 
             Holder(View view) {
                 super(view);
                 name = view.findViewById(R.id.download_name);
+                cover = view.findViewById(R.id.download_cover);
+                coverPlay = view.findViewById(R.id.download_cover_play);
                 check = view.findViewById(R.id.download_check);
                 meta = view.findViewById(R.id.download_meta);
                 state = view.findViewById(R.id.download_state);

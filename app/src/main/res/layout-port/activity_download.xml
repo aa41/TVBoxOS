@@ -7,7 +7,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="58dp"
+        android:layout_height="50dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingLeft="12dp"
@@ -29,7 +29,7 @@
             android:layout_weight="1"
             android:text="下载"
             android:textColor="@android:color/white"
-            android:textSize="22sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
@@ -51,7 +51,7 @@
             android:gravity="center"
             android:text="+"
             android:textColor="@android:color/white"
-            android:textSize="27sp" />
+            android:textSize="24sp" />
     </LinearLayout>
 
     <TextView
@@ -63,11 +63,11 @@
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:textColor="@color/download_muted"
-        android:textSize="12sp" />
+        android:textSize="11sp" />
 
     <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="54dp"
+        android:layout_height="44dp"
         android:fillViewport="false"
         android:scrollbars="none">
         <LinearLayout
@@ -88,7 +88,7 @@
     <LinearLayout
         android:id="@+id/download_selection_bar"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="44dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingLeft="16dp"
@@ -139,7 +139,7 @@
             <TextView android:id="@+id/download_empty"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:layout_marginTop="8dp" android:gravity="center"
-                android:textColor="@color/download_muted" android:textSize="14sp" />
+                android:textColor="@color/download_muted" android:textSize="13sp" />
         </LinearLayout>
     </FrameLayout>
 </LinearLayout>

@@ -8,7 +8,7 @@
     <LinearLayout
         android:id="@+id/topLayout"
         android:layout_width="0dp"
-        android:layout_height="52dp"
+        android:layout_height="44dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="16dp"
@@ -27,7 +27,7 @@
             android:maxLines="1"
             android:text="@string/app_name"
             android:textColor="@android:color/white"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
@@ -37,7 +37,7 @@
             android:gravity="center_vertical"
             android:maxLines="1"
             android:textColor="#AAB5B4"
-            android:textSize="11sp" />
+            android:textSize="10sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -53,9 +53,9 @@
         <com.owen.tvrecyclerview.widget.TvRecyclerView
             android:id="@+id/mGridView"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
+            android:layout_height="38dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             app:tv_selectedItemIsCentered="true" />
 
         <com.github.tvbox.osc.ui.tv.widget.NoScrollViewPager
@@ -68,7 +68,7 @@
     <LinearLayout
         android:id="@+id/phoneNavigation"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:background="#1B2224"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="12dp">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:fillViewport="false"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shape_phone_dialog"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:text="配置地址"
+                    android:textColor="@color/dialog_text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/inputConfirm"
+                    android:layout_width="56dp"
+                    android:layout_height="44dp"
+                    android:contentDescription="保存配置地址"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:text="保存"
+                    android:textColor="@color/dialog_text_primary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="92dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <ImageView
+                    android:id="@+id/ivQRCode"
+                    android:layout_width="88dp"
+                    android:layout_height="88dp"
+                    android:contentDescription="配置二维码"
+                    android:scaleType="fitCenter" />
+                <TextView
+                    android:id="@+id/tvAddress"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:breakStrategy="simple"
+                    android:textColor="@color/dialog_text_primary"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/apiHistory"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_danmu_setting"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:text="直播历史"
+                    android:textColor="@color/dialog_text_primary"
+                    android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/storagePermission"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_danmu_setting"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:text="存储权限"
+                    android:textColor="@color/dialog_text_primary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="26dp"
+                android:layout_marginTop="10dp"
+                android:gravity="center_vertical"
+                android:text="点播数据源"
+                android:textColor="@color/dialog_text_primary"
+                android:textSize="12sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:orientation="horizontal">
+                <EditText
+                    android:id="@+id/input"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/input_dialog_api_input"
+                    android:hint="配置地址"
+                    android:imeOptions="actionNext|flagNoExtractUi"
+                    android:inputType="textUri"
+                    android:maxLines="1"
+                    android:nextFocusDown="@id/inputLive"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:textColor="@color/dialog_text_primary"
+                    android:textColorHint="@color/dialog_text_hint"
+                    android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/inputSubmit"
+                    android:layout_width="52dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/button_danmu_setting"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:text="选择"
+                    android:textColor="@color/dialog_text_primary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="26dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:text="直播数据源"
+                android:textColor="@color/dialog_text_primary"
+                android:textSize="12sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:orientation="horizontal">
+                <EditText
+                    android:id="@+id/inputLive"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/input_dialog_api_input"
+                    android:hint="直播地址"
+                    android:imeOptions="actionDone|flagNoExtractUi"
+                    android:inputType="textUri"
+                    android:maxLines="1"
+                    android:nextFocusDown="@id/inputConfirm"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:textColor="@color/dialog_text_primary"
+                    android:textColorHint="@color/dialog_text_hint"
+                    android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/inputSubmitLive"
+                    android:layout_width="52dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/button_danmu_setting"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:text="选择"
+                    android:textColor="@color/dialog_text_primary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>

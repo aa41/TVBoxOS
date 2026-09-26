@@ -1,7 +1,10 @@
 package com.github.tvbox.osc.ui.dialog;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -32,6 +35,19 @@ public class SelectDialog<T> extends BaseDialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void show() {
+        super.show();
+        if (getContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT && isShowing()) {
+            Window window = getWindow();
+            if (window != null) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+                window.setDimAmount(0.55f);
+                window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+            }
+        }
     }
 
     public void setTip(String tip) {
